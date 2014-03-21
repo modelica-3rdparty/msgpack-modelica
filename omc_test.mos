@@ -9,44 +9,47 @@ setCFlags(getCFlags() + " -g");getErrorString();
 loadString("function f
   input String file;
 protected
-  MessagePack.SimpleBuffer sbuffer = MessagePack.SimpleBuffer();
-  MessagePack.Packer packer = MessagePack.Packer(sbuffer);
+  import MessagePack.Pack;
+  Pack.SimpleBuffer.SimpleBuffer sbuffer = Pack.SimpleBuffer.SimpleBuffer();
+  Pack.Packer packer = Pack.Packer(sbuffer);
 algorithm
-  MessagePack.pack_integer(packer,-65538);
-  MessagePack.pack_string(packer,\"OpenModelica\");
-  MessagePack.pack_map(packer, 1);
-  MessagePack.pack_double(packer,1.0);
-  MessagePack.pack_bool(packer,true);
-  MessagePack.pack_array(packer, 2);
-  MessagePack.pack_integer(packer,65538);
-  MessagePack.pack_double(packer,2.0);
-  MessagePack.pack_bool(packer,false);
-  print(String(MessagePack.pack_string(packer,\"OpenModelica\")));
-  MessagePack.to_file(sbuffer,file);
+  Pack.integer(packer,-65538);
+  Pack.string(packer,\"OpenModelica\");
+  Pack.map(packer, 1);
+  Pack.double(packer,1.0);
+  Pack.bool(packer,true);
+  Pack.array(packer, 2);
+  Pack.integer(packer,65538);
+  Pack.double(packer,2.0);
+  Pack.bool(packer,false);
+  print(String(Pack.string(packer,\"OpenModelica\")));
+  Pack.SimpleBuffer.writeFile(sbuffer,file);
 end f;
 
 function g
   input String file;
 protected
-  MessagePack.Deserializer deserializer = MessagePack.Deserializer(file);
-  MessagePack.StringStream ss = MessagePack.StringStream();
+  import MessagePack.Utilities.StringStream;
+  import MessagePack.Unpack;
+  Unpack.Deserializer deserializer = Unpack.Deserializer(file);
+  StringStream.StringStream ss = StringStream.StringStream();
   Integer offset = 0, i;
   String s;
   Boolean success;
 algorithm
-  (i,offset) := MessagePack.unpack_int(deserializer,offset);
+  (i,offset) := Unpack.integer(deserializer,offset);
   print(String(i) + \" offset: \" + String(offset) +\"\n\");
-  (s,offset) := MessagePack.unpack_string(deserializer,offset);
+  (s,offset) := Unpack.string(deserializer,offset);
   print(s + \" offset: \" + String(offset) +\"\n\");
-  offset := MessagePack.unpack_any_to_stringstream(deserializer,ss,offset);
-  print(MessagePack.stringstream_get(ss) + \" offset: \" + String(offset) +\"\n\");
-  print(MessagePack.stringstream_get(ss) + \" offset: \" + String(offset) +\"\n\");
+  offset := Unpack.toStringStream(deserializer,ss,offset);
+  print(StringStream.get(ss) + \" offset: \" + String(offset) +\"\n\");
+  print(StringStream.get(ss) + \" offset: \" + String(offset) +\"\n\");
   success := true;
   while success loop
-    (offset,success) := MessagePack.unpack_any_to_stringstream(deserializer,ss,offset);
-    MessagePack.stringstream_append(ss,\"\n\");
+    (offset,success) := Unpack.toStringStream(deserializer,ss,offset);
+    StringStream.append(ss,\"\n\");
   end while;
-  print(MessagePack.stringstream_get(ss) + \"offset: \" + String(offset) +\"\n\");
+  print(StringStream.get(ss) + \"offset: \" + String(offset) +\"\n\");
 end g;
 ");getErrorString();
 system("rm -f out.msgpack");getErrorString();

@@ -214,7 +214,7 @@ int msgpack_modelica_get_unpacked_int(void *ptr)
   return deserializer->msg.data.via.i64;
 }
 
-int msgpack_modelica_unpack_any_to_stringstream(void *ptr1, void *ptr2, int offset, int *newoffset)
+int msgpack_modelica_unpack_next_to_stringstream(void *ptr1, void *ptr2, int offset, int *newoffset)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr1;
   s_stringstream *st = (s_stringstream *) ptr2;
