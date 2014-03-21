@@ -75,12 +75,12 @@ algorithm
   result := if bool then msgpack_pack_true(packer) else msgpack_pack_false(packer);
 end bool;
 
-function array
+function sequence
   input Packer packer;
   input Integer len;
   output Boolean result;
 external "C" result=msgpack_modelica_pack_array(packer,len) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
-end array;
+end sequence;
 
 function map
   input Packer packer;

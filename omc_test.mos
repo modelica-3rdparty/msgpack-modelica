@@ -5,6 +5,7 @@
 loadFile("MessagePack/package.mo");getErrorString();
 mkdir("tmp");
 cd("tmp");
+writeFile("MessagePack.mo",list(exportKind=OpenModelica.Scripting.ExportKind.Absyn));getErrorString();
 setCFlags(getCFlags() + " -g");getErrorString();
 loadString("function f
   input String file;
@@ -18,7 +19,7 @@ algorithm
   Pack.map(packer, 1);
   Pack.double(packer,1.0);
   Pack.bool(packer,true);
-  Pack.array(packer, 2);
+  Pack.sequence(packer, 2);
   Pack.integer(packer,65538);
   Pack.double(packer,2.0);
   Pack.bool(packer,false);
