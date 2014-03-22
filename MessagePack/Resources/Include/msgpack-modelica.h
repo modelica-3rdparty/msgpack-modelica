@@ -24,6 +24,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef __MSGPACK_MODELICA_H
+#define __MSGPACK_MODELICA_H
+
 #include <msgpack.h>
 #include <stdio.h>
 #include <errno.h>
@@ -48,22 +51,22 @@ typedef struct {
   size_t size;
 } s_stringstream;
 
-int msgpack_modelica_pack_map(void *packer, int len)
+static inline int msgpack_modelica_pack_map(void *packer, int len)
 {
   return msgpack_pack_map(packer,len);
 }
 
-void* msgpack_modelica_packer_new_sbuffer(void *sbuffer)
+static inline void* msgpack_modelica_packer_new_sbuffer(void *sbuffer)
 {
   return msgpack_packer_new(sbuffer, msgpack_sbuffer_write);
 }
 
-int msgpack_modelica_pack_array(void *packer, int len)
+static inline int msgpack_modelica_pack_array(void *packer, int len)
 {
   return msgpack_pack_array(packer,len);
 }
 
-int msgpack_modelica_pack_string(void* packer, const char *str)
+static inline int msgpack_modelica_pack_string(void* packer, const char *str)
 {
   size_t len = strlen(str);
   if (msgpack_pack_raw(packer,len)) {
@@ -72,7 +75,7 @@ int msgpack_modelica_pack_string(void* packer, const char *str)
   return msgpack_pack_raw_body(packer,str,len);
 }
 
-void omc_sbuffer_to_file(void *ptr, const char *file)
+static inline void omc_sbuffer_to_file(void *ptr, const char *file)
 {
   msgpack_sbuffer* buffer = (msgpack_sbuffer*) ptr;
   FILE *fout = fopen(file, "w");
@@ -96,7 +99,7 @@ static void unpack_print(FILE *fout, const void *ptr, size_t size) {
   msgpack_unpacked_destroy(&msg);
 }
 
-const char* msgpack_modelica_deserialize(const char *file)
+static const char* msgpack_modelica_deserialize(const char *file)
 {
   int fd;
   char *str,*res;
@@ -125,7 +128,7 @@ const char* msgpack_modelica_deserialize(const char *file)
   return res;
 }
 
-void* msgpack_modelica_new_deserialiser(const char *file)
+static void* msgpack_modelica_new_deserialiser(const char *file)
 {
   s_deserializer *deserializer = (s_deserializer*) malloc(sizeof(s_deserializer));
   int fd;
@@ -151,7 +154,7 @@ void* msgpack_modelica_new_deserialiser(const char *file)
   return deserializer;
 }
 
-void msgpack_modelica_free_deserialiser(void *ptr)
+static inline void msgpack_modelica_free_deserialiser(void *ptr)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   msgpack_unpacked_destroy(&deserializer->msg);
@@ -160,7 +163,7 @@ void msgpack_modelica_free_deserialiser(void *ptr)
   free(ptr);
 }
 
-int msgpack_modelica_unpack_next(void *ptr, int offset, int *newoffset)
+static inline int msgpack_modelica_unpack_next(void *ptr, int offset, int *newoffset)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
@@ -169,7 +172,7 @@ int msgpack_modelica_unpack_next(void *ptr, int offset, int *newoffset)
   return res;
 }
 
-int msgpack_modelica_unpack_int(void *ptr, int offset, int *newoffset, int *success)
+static int msgpack_modelica_unpack_int(void *ptr, int offset, int *newoffset, int *success)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
@@ -188,7 +191,7 @@ int msgpack_modelica_unpack_int(void *ptr, int offset, int *newoffset, int *succ
   return 0; /* Cannot reach here */
 }
 
-const char* msgpack_modelica_unpack_string(void *ptr, int offset, int *newoffset, int *success)
+static const char* msgpack_modelica_unpack_string(void *ptr, int offset, int *newoffset, int *success)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
@@ -208,13 +211,13 @@ const char* msgpack_modelica_unpack_string(void *ptr, int offset, int *newoffset
   return NULL; /* Cannot reach here */
 }
 
-int msgpack_modelica_get_unpacked_int(void *ptr)
+static inline int msgpack_modelica_get_unpacked_int(void *ptr)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   return deserializer->msg.data.via.i64;
 }
 
-int msgpack_modelica_unpack_next_to_stringstream(void *ptr1, void *ptr2, int offset, int *newoffset)
+static int msgpack_modelica_unpack_next_to_stringstream(void *ptr1, void *ptr2, int offset, int *newoffset)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr1;
   s_stringstream *st = (s_stringstream *) ptr2;
@@ -230,7 +233,7 @@ int msgpack_modelica_unpack_next_to_stringstream(void *ptr1, void *ptr2, int off
   }
 }
 
-void* msgpack_modelica_new_stringstream()
+static inline void* msgpack_modelica_new_stringstream()
 {
   s_stringstream *st = (s_stringstream *) malloc(sizeof(s_stringstream));
   st->str = 0;
@@ -239,7 +242,7 @@ void* msgpack_modelica_new_stringstream()
   return st;
 }
 
-void msgpack_modelica_free_stringstream(void *ptr)
+static inline void msgpack_modelica_free_stringstream(void *ptr)
 {
   s_stringstream *st = (s_stringstream *) ptr;
   fclose(st->fout);
@@ -247,7 +250,7 @@ void msgpack_modelica_free_stringstream(void *ptr)
   free(st);
 }
 
-char* msgpack_modelica_stringstream_get(void *ptr)
+static char* msgpack_modelica_stringstream_get(void *ptr)
 {
   char *res;
   s_stringstream *st = (s_stringstream *) ptr;
@@ -264,8 +267,10 @@ char* msgpack_modelica_stringstream_get(void *ptr)
   return res;
 }
 
-void msgpack_modelica_stringstream_append(void *ptr, const char *str)
+static inline void msgpack_modelica_stringstream_append(void *ptr, const char *str)
 {
   s_stringstream *st = (s_stringstream *) ptr;
   fputs(str, st->fout);
 }
+
+#endif
