@@ -23,14 +23,14 @@ function next
 external "C" success=msgpack_modelica_unpack_next(deserializer,offset,newoffset) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
 end next;
 
-function toStringStream
+function toStream
   input Deserializer deserializer;
-  input MessagePack.Utilities.StringStream.StringStream ss;
+  input MessagePack.Utilities.Stream.Stream ss;
   input Integer offset;
   output Integer newoffset;
   output Boolean success;
-external "C" success=msgpack_modelica_unpack_next_to_stringstream(deserializer,ss,offset,newoffset) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
-end toStringStream;
+external "C" success=msgpack_modelica_unpack_next_to_stream(deserializer,ss,offset,newoffset) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+end toStream;
 
 function integer
   input Deserializer deserializer;

@@ -5,8 +5,8 @@
 loadFile("MessagePack/package.mo");getErrorString();
 mkdir("tmp");
 cd("tmp");
-writeFile("MessagePack.mo",list(exportKind=OpenModelica.Scripting.ExportKind.Absyn));getErrorString();
-setCFlags(getCFlags() + " -g");getErrorString();
+writeFile("MessagePack.mo","// Do not modify this file: It was automatically generated from https://github.com/sjoelund/msgpack-modelica/\n" + list(exportKind=OpenModelica.Scripting.ExportKind.Absyn));getErrorString();
+setCFlags(getCFlags() + " -g -O0");getErrorString();
 loadString("function f
   input String file;
 protected
@@ -24,36 +24,40 @@ algorithm
   Pack.double(packer,2.0);
   Pack.bool(packer,false);
   print(String(Pack.string(packer,\"OpenModelica\")));
+print(\"\nwrite to file \"+file+\"...\n\");
   Pack.SimpleBuffer.writeFile(sbuffer,file);
 end f;
 
 function g
   input String file;
 protected
-  import MessagePack.Utilities.StringStream;
+  import MessagePack.Utilities.Stream;
   import MessagePack.Unpack;
   Unpack.Deserializer deserializer = Unpack.Deserializer(file);
-  StringStream.StringStream ss = StringStream.StringStream();
+  Stream.Stream ss = Stream.Stream();
   Integer offset = 0, i;
   String s;
   Boolean success;
 algorithm
+  print(\"Starting to deserialize \" + file + \"\n\");
   (i,offset) := Unpack.integer(deserializer,offset);
   print(String(i) + \" offset: \" + String(offset) +\"\n\");
   (s,offset) := Unpack.string(deserializer,offset);
   print(s + \" offset: \" + String(offset) +\"\n\");
-  offset := Unpack.toStringStream(deserializer,ss,offset);
-  print(StringStream.get(ss) + \" offset: \" + String(offset) +\"\n\");
-  print(StringStream.get(ss) + \" offset: \" + String(offset) +\"\n\");
+  offset := Unpack.toStream(deserializer,ss,offset);
+  print(Stream.get(ss) + \" offset: \" + String(offset) +\"\n\");
+  print(Stream.get(ss) + \" offset: \" + String(offset) +\"\n\");
   success := true;
   while success loop
-    (offset,success) := Unpack.toStringStream(deserializer,ss,offset);
-    StringStream.append(ss,\"\n\");
+    (offset,success) := Unpack.toStream(deserializer,ss,offset);
+    Stream.append(ss,\"\n\");
   end while;
-  print(StringStream.get(ss) + \"offset: \" + String(offset) +\"\n\");
+  print(Stream.get(ss) + \"offset: \" + String(offset) +\"\n\");
 end g;
 ");getErrorString();
 system("rm -f out.msgpack");getErrorString();
+"f";
 f("out.msgpack");getErrorString();
+"system";
 system("ls -l out.msgpack");getErrorString();
 g("out.msgpack");getErrorString();

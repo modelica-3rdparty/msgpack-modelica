@@ -47,9 +47,10 @@ typedef struct {
 
 typedef struct {
   FILE *fout;
+  int isStringBuffer;
   char *str;
   size_t size;
-} s_stringstream;
+} s_stream;
 
 static inline int msgpack_modelica_pack_map(void *packer, int len)
 {
@@ -85,6 +86,7 @@ static inline void omc_sbuffer_to_file(void *ptr, const char *file)
   if (1 != fwrite(buffer->data, buffer->size, 1, fout)) {
     ModelicaFormatError("Failed to write to file %s", file);
   }
+  fclose(fout);
 }
 
 static void unpack_print(FILE *fout, const void *ptr, size_t size) {
@@ -97,35 +99,6 @@ static void unpack_print(FILE *fout, const void *ptr, size_t size) {
     fputc('\n',fout);
   }
   msgpack_unpacked_destroy(&msg);
-}
-
-static const char* msgpack_modelica_deserialize(const char *file)
-{
-  int fd;
-  char *str,*res;
-  void *mapped;
-  size_t sz_str = 0;
-  FILE *fout = open_memstream(&str,&sz_str);
-  struct stat s;
-  fd = open(file, O_RDONLY);
-  if (fd < 0) {
-    ModelicaFormatError("Failed to open file %s for reading: %s\n", file, strerror(errno));
-  }
-  if (fstat(fd, &s) < 0) {
-    ModelicaFormatError("stat %s failed: %s\n", file, strerror(errno));
-  }
-  mapped = mmap(0, s.st_size, PROT_READ, MAP_SHARED, fd, 0);
-  if (mapped == MAP_FAILED) {
-    ModelicaFormatError("mmap(%s) failed: %s\n", file, strerror(errno));
-  }
-  unpack_print(fout, mapped, s.st_size);
-  munmap(mapped, s.st_size);
-  close(fd);
-  fclose(fout);
-  res=ModelicaAllocateString(sz_str);
-  memcpy(res,str,sz_str);
-  free(str);
-  return res;
 }
 
 static void* msgpack_modelica_new_deserialiser(const char *file)
@@ -145,7 +118,7 @@ static void* msgpack_modelica_new_deserialiser(const char *file)
   mapped = mmap(0, s.st_size, PROT_READ, MAP_SHARED, fd, 0);
   if (mapped == MAP_FAILED) {
     close(fd);
-    ModelicaFormatError("mmap(%s) failed: %s\n", file, strerror(errno));
+    ModelicaFormatError("mmap(file=\"%s\",fd=%d,size=%ld) failed: %s\n", file, fd, (long) s.st_size, strerror(errno));
   }
   msgpack_unpacked_init(&deserializer->msg);
   deserializer->fd = fd;
@@ -217,10 +190,10 @@ static inline int msgpack_modelica_get_unpacked_int(void *ptr)
   return deserializer->msg.data.via.i64;
 }
 
-static int msgpack_modelica_unpack_next_to_stringstream(void *ptr1, void *ptr2, int offset, int *newoffset)
+static int msgpack_modelica_unpack_next_to_stream(void *ptr1, void *ptr2, int offset, int *newoffset)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr1;
-  s_stringstream *st = (s_stringstream *) ptr2;
+  s_stream *st = (s_stream *) ptr2;
   size_t off = offset;
   if (msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off)) {
     msgpack_object root = deserializer->msg.data;
@@ -233,33 +206,45 @@ static int msgpack_modelica_unpack_next_to_stringstream(void *ptr1, void *ptr2, 
   }
 }
 
-static inline void* msgpack_modelica_new_stringstream()
+static void* msgpack_modelica_new_stream(const char *filename)
 {
-  s_stringstream *st = (s_stringstream *) malloc(sizeof(s_stringstream));
+  s_stream *st = (s_stream *) malloc(sizeof(s_stream));
   st->str = 0;
   st->size = 0;
-  st->fout = open_memstream(&st->str,&st->size);
+  st->isStringBuffer = 0 == *filename;
+  if (st->isStringBuffer) {
+    st->fout = open_memstream(&st->str,&st->size);
+  } else {
+    st->fout = fopen(filename, "wb");
+  }
+  if (!st->fout) {
+    free(st);
+    ModelicaFormatError("msgpack_modelica_new_stream(%s) failed\n", filename);
+  }
   return st;
 }
 
-static inline void msgpack_modelica_free_stringstream(void *ptr)
+static inline void msgpack_modelica_free_stream(void *ptr)
 {
-  s_stringstream *st = (s_stringstream *) ptr;
+  s_stream *st = (s_stream *) ptr;
   fclose(st->fout);
   free(st->str);
   free(st);
 }
 
-static char* msgpack_modelica_stringstream_get(void *ptr)
+static char* msgpack_modelica_stream_get(void *ptr)
 {
   char *res;
-  s_stringstream *st = (s_stringstream *) ptr;
+  s_stream *st = (s_stream *) ptr;
+  if (!st->isStringBuffer) {
+    ModelicaError("Cannot get stream contents for file streams.\n");
+  }
   fclose(st->fout);
   res = ModelicaAllocateStringWithErrorReturn(st->size);
   memcpy(res,st->str,st->size);
   free(st->str);
   if (!res) {
-    ModelicaError("Failed to allocate memory for stringstream\n");
+    ModelicaError("Failed to allocate memory for stream\n");
   }
   st->str = 0;
   st->size = 0;
@@ -267,9 +252,9 @@ static char* msgpack_modelica_stringstream_get(void *ptr)
   return res;
 }
 
-static inline void msgpack_modelica_stringstream_append(void *ptr, const char *str)
+static inline void msgpack_modelica_stream_append(void *ptr, const char *str)
 {
-  s_stringstream *st = (s_stringstream *) ptr;
+  s_stream *st = (s_stream *) ptr;
   fputs(str, st->fout);
 }
 
