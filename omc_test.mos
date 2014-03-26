@@ -6,7 +6,7 @@ loadFile("MessagePack/package.mo");getErrorString();
 mkdir("tmp");
 cd("tmp");
 writeFile("MessagePack.mo","// Do not modify this file: It was automatically generated from https://github.com/sjoelund/msgpack-modelica/\n" + list(exportKind=OpenModelica.Scripting.ExportKind.Absyn));getErrorString();
-setCFlags(getCFlags() + " -g -O0");getErrorString();
+setCFlags(getCFlags() + " -g -O0 -DHAVE_OPEN_MEMSTREAM");getErrorString();
 loadString("function f
   input String file;
 protected
