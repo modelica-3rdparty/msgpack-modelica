@@ -81,10 +81,10 @@ static inline void omc_sbuffer_to_file(void *ptr, const char *file)
   msgpack_sbuffer* buffer = (msgpack_sbuffer*) ptr;
   FILE *fout = fopen(file, "w");
   if (!fout) {
-    ModelicaFormatError("Failed to open file %s for writing", file);
+    ModelicaFormatError("Failed to open file %s for writing\n", file);
   }
   if (1 != fwrite(buffer->data, buffer->size, 1, fout)) {
-    ModelicaFormatError("Failed to write to file %s", file);
+    ModelicaFormatError("Failed to write to file %s\n", file);
   }
   fclose(fout);
 }
@@ -216,7 +216,7 @@ static void* msgpack_modelica_new_stream(const char *filename)
 #if HAVE_OPEN_MEMSTREAM
     st->fout = open_memstream(&st->str,&st->size);
 #else
-    ModelicaError("String streams are not implemented for this platform");
+    ModelicaError("String streams are not implemented for this platform\n");
 #endif
   } else {
     st->fout = fopen(filename, "wb");
@@ -256,7 +256,7 @@ static char* msgpack_modelica_stream_get(void *ptr)
   st->fout = open_memstream(&st->str,&st->size);
   return res;
 #else
-  ModelicaError("String streams are not implemented for this platform");
+  ModelicaError("String streams are not implemented for this platform\n");
 #endif
 }
 
