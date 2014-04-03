@@ -15,6 +15,7 @@ protected
   Pack.Packer packer = Pack.Packer(sbuffer);
 algorithm
   Pack.integer(packer,-65538);
+  print(\"Position of OpenModelica string: \" + String(Pack.SimpleBuffer.position(sbuffer)) + \"\n\");
   Pack.string(packer,\"OpenModelica\");
   Pack.map(packer, 1);
   Pack.double(packer,1.0);

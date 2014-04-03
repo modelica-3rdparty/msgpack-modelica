@@ -89,6 +89,12 @@ static inline void omc_sbuffer_to_file(void *ptr, const char *file)
   fclose(fout);
 }
 
+static inline int omc_sbuffer_position(void *ptr)
+{
+  msgpack_sbuffer* buffer = (msgpack_sbuffer*) ptr;
+  return buffer->size;
+}
+
 static void unpack_print(FILE *fout, const void *ptr, size_t size) {
   size_t off = 0;
   msgpack_unpacked msg;
