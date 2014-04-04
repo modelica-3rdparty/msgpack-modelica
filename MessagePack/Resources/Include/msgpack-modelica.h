@@ -54,7 +54,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 
-
+#if defined(__cplusplus)
+#define STATIC_CAST(T, E) static_cast<T>(E)
+#else
+#define STATIC_CAST(T, E) E
+#endif
 
 typedef struct {
   msgpack_unpacked msg;
@@ -72,7 +76,7 @@ typedef struct {
 
 static inline int msgpack_modelica_pack_map(void *packer, int len)
 {
-  return msgpack_pack_map(packer,len);
+  return msgpack_pack_map(STATIC_CAST(msgpack_packer *, packer), len);
 }
 
 static inline void* msgpack_modelica_packer_new_sbuffer(void *sbuffer)
@@ -82,16 +86,16 @@ static inline void* msgpack_modelica_packer_new_sbuffer(void *sbuffer)
 
 static inline int msgpack_modelica_pack_array(void *packer, int len)
 {
-  return msgpack_pack_array(packer,len);
+  return msgpack_pack_array(STATIC_CAST(msgpack_packer *, packer), len);
 }
 
 static inline int msgpack_modelica_pack_string(void* packer, const char *str)
 {
   size_t len = strlen(str);
-  if (msgpack_pack_raw(packer,len)) {
+  if (msgpack_pack_raw(STATIC_CAST(msgpack_packer *, packer), len)) {
     return 1;
   }
-  return msgpack_pack_raw_body(packer,str,len);
+  return msgpack_pack_raw_body(STATIC_CAST(msgpack_packer *, packer), str, len);
 }
 
 static inline void omc_sbuffer_to_file(void *ptr, const char *file)
@@ -117,7 +121,7 @@ static void unpack_print(FILE *fout, const void *ptr, size_t size) {
   size_t off = 0;
   msgpack_unpacked msg;
   msgpack_unpacked_init(&msg);
-  while (msgpack_unpack_next(&msg, ptr, size, &off)) {
+  while (msgpack_unpack_next(&msg, STATIC_CAST(const char *, ptr), size, &off)) {
     msgpack_object root = msg.data;
     msgpack_object_print(fout,root);
     fputc('\n',fout);
@@ -154,7 +158,7 @@ static void* msgpack_modelica_new_deserialiser(const char *file)
   fseek(fin, 0, SEEK_END);
   sz = ftell(fin);
   fseek(fin, 0, SEEK_SET);
-  mapped = malloc(sz + 1);
+  mapped = STATIC_CAST(char *, malloc(sz + 1));
   if (1 != fread(mapped, sz, 1, fin)) {
     free(mapped);
     fclose(fin);
@@ -187,7 +191,7 @@ static inline int msgpack_modelica_unpack_next(void *ptr, int offset, int *newof
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
-  int res = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
+  int res = msgpack_unpack_next(&deserializer->msg, STATIC_CAST(const char *, deserializer->ptr), deserializer->size, &off);
   *newoffset = off;
   return res;
 }
@@ -196,7 +200,7 @@ static int msgpack_modelica_unpack_int(void *ptr, int offset, int *newoffset, in
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
-  *success = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
+  *success = msgpack_unpack_next(&deserializer->msg, STATIC_CAST(const char *, deserializer->ptr), deserializer->size, &off);
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
   }
@@ -214,7 +218,7 @@ static const char* msgpack_modelica_unpack_string(void *ptr, int offset, int *ne
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
-  *success = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
+  *success = msgpack_unpack_next(&deserializer->msg, STATIC_CAST(const char *, deserializer->ptr), deserializer->size, &off);
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
   }
@@ -240,7 +244,7 @@ static int msgpack_modelica_unpack_next_to_stream(void *ptr1, void *ptr2, int of
   s_deserializer *deserializer = (s_deserializer*) ptr1;
   s_stream *st = (s_stream *) ptr2;
   size_t off = offset;
-  if (msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off)) {
+  if (msgpack_unpack_next(&deserializer->msg, STATIC_CAST(const char *, deserializer->ptr), deserializer->size, &off)) {
     msgpack_object root = deserializer->msg.data;
     msgpack_object_print(st->fout,root);
     *newoffset = off;
