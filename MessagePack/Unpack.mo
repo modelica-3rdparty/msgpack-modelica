@@ -25,7 +25,7 @@ end next;
 
 function toStream
   input Deserializer deserializer;
-  input MessagePack.Utilities.Stream.Stream ss;
+  input Utilities.Stream.Stream ss;
   input Integer offset;
   output Integer newoffset;
   output Boolean success;

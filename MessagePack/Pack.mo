@@ -8,12 +8,12 @@ package SimpleBuffer
 
     function constructor
       output SimpleBuffer buf;
-    external "C" buf = msgpack_sbuffer_new() annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+    external "C" buf = msgpack_modelica_sbuffer_new() annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
     end constructor;
 
     function destructor
       input SimpleBuffer buf;
-    external "C" msgpack_sbuffer_free(buf) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+    external "C" msgpack_modelica_sbuffer_free(buf) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
     end destructor;
 
   end SimpleBuffer;
@@ -21,13 +21,13 @@ package SimpleBuffer
   function writeFile
     input SimpleBuffer sbuffer;
     input String file;
-    external "C" omc_sbuffer_to_file(sbuffer,file) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+    external "C" msgpack_modelica_sbuffer_to_file(sbuffer,file) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
   end writeFile;
 
   function position
     input SimpleBuffer sbuffer;
     output Integer position;
-    external "C" position=omc_sbuffer_position(sbuffer) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+    external "C" position=msgpack_modelica_sbuffer_position(sbuffer) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
   end position;
 
 end SimpleBuffer;
@@ -43,7 +43,7 @@ class Packer
 
   function destructor
     input Packer packer;
-  external "C" msgpack_packer_free(packer) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+  external "C" msgpack_modelica_packer_free(packer) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
   end destructor;
 
 end Packer;
@@ -52,14 +52,14 @@ function double
   input Packer packer;
   input Real dbl;
   output Boolean result;
-  external "C" result=msgpack_pack_double(packer,dbl) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+  external "C" result=msgpack_modelica_pack_double(packer,dbl) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
 end double;
 
 function integer
   input Packer packer;
   input Integer i;
   output Boolean result;
-  external "C" result=msgpack_pack_int(packer,i) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+  external "C" result=msgpack_modelica_pack_int(packer,i) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
 end integer;
 
 function bool
@@ -70,12 +70,12 @@ protected
   function msgpack_pack_true
     input Packer packer;
     output Boolean result;
-    external "C" annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+    external "C" result=msgpack_modelica_pack_true(packer) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
   end msgpack_pack_true;
   function msgpack_pack_false
     input Packer packer;
     output Boolean result;
-    external "C" annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
+    external "C" result=msgpack_modelica_pack_false(packer) annotation(Include="#include <msgpack-modelica.h>", Library="msgpackc");
   end msgpack_pack_false;
 algorithm
   result := if bool then msgpack_pack_true(packer) else msgpack_pack_false(packer);

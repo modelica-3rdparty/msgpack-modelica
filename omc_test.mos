@@ -2,11 +2,17 @@
  * A simple OpenModelica script to verify that MessagePack works correctly
  */
 
+setCommandLineOptions("+d=nogen");
+
 loadFile("MessagePack/package.mo");getErrorString();
 mkdir("tmp");
 cd("tmp");
+
+// Test with a C++ compiler every now and then
+// setCompiler("clang++");setLinker("clang++ -shared");setCFlags(getCFlags() + " -x c++");getErrorString();
+
 writeFile("MessagePack.mo","// Do not modify this file: It was automatically generated from https://github.com/sjoelund/msgpack-modelica/\n" + list(exportKind=OpenModelica.Scripting.ExportKind.Absyn));getErrorString();
-setCFlags(getCFlags() + " -g -O0 -DHAVE_OPEN_MEMSTREAM");getErrorString();
+setCFlags(getCFlags() + " -Werror -g -O0");getErrorString();
 loadString("function f
   input String file;
 protected
@@ -55,10 +61,21 @@ algorithm
   end while;
   print(Stream.get(ss) + \"offset: \" + String(offset) +\"\n\");
 end g;
+
+model CreateFile
+initial algorithm
+  f(\"out.msgpack\");
+end CreateFile;
+
+model ReadFile
+initial algorithm
+  g(\"out.msgpack\");
+end ReadFile;
+
 ");getErrorString();
 system("rm -f out.msgpack");getErrorString();
 "f";
-f("out.msgpack");getErrorString();
+simulate(CreateFile);getErrorString();
 "system";
 system("ls -l out.msgpack");getErrorString();
-g("out.msgpack");getErrorString();
+simulate(ReadFile);getErrorString();
