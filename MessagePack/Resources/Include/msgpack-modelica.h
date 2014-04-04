@@ -250,6 +250,7 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_int(void *ptr, int offset, i
   *success = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
+    return 0;
   }
   *newoffset = off;
   if (deserializer->msg.data.type == MSGPACK_OBJECT_POSITIVE_INTEGER) {
@@ -258,6 +259,7 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_int(void *ptr, int offset, i
     return deserializer->msg.data.via.i64;
   } else {
     ModelicaError("Object is not of integer type\n");
+    return 0;
   }
 }
 
@@ -268,6 +270,7 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_unpack_string(void *ptr, in
   *success = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
+    return '\0';
   }
   *newoffset = off;
   if (deserializer->msg.data.type == MSGPACK_OBJECT_RAW) {
@@ -277,6 +280,7 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_unpack_string(void *ptr, in
     return res;
   } else {
     ModelicaError("Object is not of integer type\n");
+    return '\0';
   }
 }
 
@@ -353,6 +357,7 @@ MSGPACK_MODELICA_STATIC char* msgpack_modelica_stream_get(void *ptr)
   return res;
 #else
   ModelicaError("String streams are not implemented for this platform\n");
+  return '\0';
 #endif
 }
 
