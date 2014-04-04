@@ -205,7 +205,7 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_deserialiser(const char *file
   fseek(fin, 0, SEEK_END);
   sz = ftell(fin);
   fseek(fin, 0, SEEK_SET);
-  mapped = malloc(sz + 1);
+  mapped = (char*) malloc(sz + 1);
   if (1 != fread(mapped, sz, 1, fin)) {
     free(mapped);
     fclose(fin);
@@ -229,7 +229,7 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_free_deserialiser(void *ptr
   munmap((void*)deserializer->ptr, deserializer->size);
   close(deserializer->fd);
 #else
-  free(deserializer->ptr);
+  free((void*)deserializer->ptr);
 #endif
   free(ptr);
 }
