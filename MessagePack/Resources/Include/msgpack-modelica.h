@@ -50,7 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <msgpack.h>
 #include <stdio.h>
 #include <errno.h>
+#if defined(__cplusplus)
+extern "C" {
+#endif
 #include <ModelicaUtilities.h>
+#if defined(__cplusplus)
+}
+#endif
 
 #if HAVE_MMAP
 #include <sys/types.h>
