@@ -337,7 +337,7 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_free_stream(void *ptr)
   free(st);
 }
 
-MSGPACK_MODELICA_STATIC char* msgpack_modelica_stream_get(void *ptr)
+MSGPACK_MODELICA_STATIC const char* msgpack_modelica_stream_get(void *ptr)
 {
 #if HAVE_OPEN_MEMSTREAM
   char *res;
