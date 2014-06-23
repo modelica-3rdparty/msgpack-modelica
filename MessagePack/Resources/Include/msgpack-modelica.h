@@ -258,9 +258,9 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_int(void *ptr, int offset, i
   }
   *newoffset = off;
   if (deserializer->msg.data.type == MSGPACK_OBJECT_POSITIVE_INTEGER) {
-    return deserializer->msg.data.via.u64;
+    return (int)deserializer->msg.data.via.u64;
   } else if (deserializer->msg.data.type == MSGPACK_OBJECT_NEGATIVE_INTEGER) {
-    return deserializer->msg.data.via.i64;
+    return (int)deserializer->msg.data.via.i64;
   } else {
     ModelicaError("Object is not of integer type\n");
   }
@@ -288,7 +288,7 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_unpack_string(void *ptr, in
 MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_get_unpacked_int(void *ptr)
 {
   s_deserializer *deserializer = (s_deserializer*) ptr;
-  return deserializer->msg.data.via.i64;
+  return (int)deserializer->msg.data.via.i64;
 }
 
 MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_next_to_stream(void *ptr1, void *ptr2, int offset, int *newoffset)
