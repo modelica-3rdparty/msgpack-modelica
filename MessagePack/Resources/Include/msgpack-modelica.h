@@ -347,11 +347,11 @@ MSGPACK_MODELICA_STATIC char* msgpack_modelica_stream_get(void *ptr)
   }
   fclose(st->fout);
   res = ModelicaAllocateStringWithErrorReturn(st->size);
-  memcpy(res,st->str,st->size);
-  free(st->str);
   if (!res) {
     ModelicaError("Failed to allocate memory for stream\n");
   }
+  memcpy(res,st->str,st->size);
+  free(st->str);
   st->str = 0;
   st->size = 0;
   st->fout = open_memstream(&st->str,&st->size);
