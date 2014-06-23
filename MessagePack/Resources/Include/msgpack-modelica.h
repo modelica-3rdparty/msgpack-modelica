@@ -47,6 +47,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #endif
 
+#if !defined(__cplusplus) && defined(_MSC_VER)
+#define bool int
+#define FALSE (0)
+#define TRUE (!FALSE)
+#define inline __inline
+#endif
+
 #include <msgpack.h>
 #include <stdio.h>
 #include <errno.h>
