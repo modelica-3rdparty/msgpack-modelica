@@ -7,7 +7,7 @@ package Utilities
     class Stream
       extends ExternalObject;
       function constructor
-        input String file := "" "Output file or \"\" for an in-memory string accessible using get()";
+        input String file = "" "Output file or \"\" for an in-memory string accessible using get()";
         output Stream ss;
       external "C" ss=msgpack_modelica_new_stream(file) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
       end constructor;
@@ -36,12 +36,12 @@ package Utilities
   function deserializeFileToFile
     input String inBinaryFile;
     input String outTextFile;
-    input String separator := "\n";
+    input String separator = "\n";
   protected
     Unpack.Deserializer deserializer = Unpack.Deserializer(inBinaryFile);
     Stream.Stream ss = Stream.Stream(outTextFile);
-    Boolean success := true;
-    Integer offset := 0;
+    Boolean success = true;
+    Integer offset = 0;
   algorithm
     while success loop
       (offset,success) := Unpack.toStream(deserializer,ss,offset);

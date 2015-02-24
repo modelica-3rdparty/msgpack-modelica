@@ -1,0 +1,14 @@
+# Do not change the line endings by default
+* -text
+
+# Explicitly declare text files we want to always be normalized and converted
+# to native line endings on checkout.
+*.c text eol=native
+*.h text eol=native
+*.mo text eol=native
+*.mos text eol=native
+*.order text eol=native
+.gitattributes text eol=native
+.gitignore text eol=native
+*.md text eol=native
+LICENSE text eol=native
