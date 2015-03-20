@@ -144,10 +144,10 @@ MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_pack_double(void *packer, do
 MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_pack_string(void* packer, const char *str)
 {
   size_t len = strlen(str);
-  if (msgpack_pack_raw((msgpack_packer *)packer,len)) {
+  if (msgpack_pack_str((msgpack_packer *)packer,len)) {
     return 1;
   }
-  return msgpack_pack_raw_body((msgpack_packer *)packer,str,len);
+  return msgpack_pack_str_body((msgpack_packer *)packer,str,len);
 }
 
 MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_sbuffer_to_file(void *ptr, const char *file)
@@ -166,7 +166,7 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_sbuffer_to_file(void *ptr, 
 MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_sbuffer_position(void *ptr)
 {
   msgpack_sbuffer* buffer = (msgpack_sbuffer*) ptr;
-  return buffer->size;
+  return (int)buffer->size;
 }
 
 MSGPACK_MODELICA_STATIC void unpack_print(FILE *fout, const void *ptr, size_t size) {
@@ -185,7 +185,7 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_deserialiser(const char *file
 {
   s_deserializer *deserializer = (s_deserializer*) malloc(sizeof(s_deserializer));
   char *mapped;
-  /* The msgpack api uses raw data, and  mmap is nice if we want to use random access in the file */
+  /* The msgpack api uses raw data, and mmap is nice if we want to use random access in the file */
 #if HAVE_MMAP
   struct stat s;
   int fd;
@@ -244,7 +244,7 @@ MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_unpack_next(void *ptr, int o
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
   int res = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
-  *newoffset = off;
+  *newoffset = (int)off;
   return res;
 }
 
@@ -256,7 +256,7 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_int(void *ptr, int offset, i
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
   }
-  *newoffset = off;
+  *newoffset = (int)off;
   if (deserializer->msg.data.type == MSGPACK_OBJECT_POSITIVE_INTEGER) {
     return (int)deserializer->msg.data.via.u64;
   } else if (deserializer->msg.data.type == MSGPACK_OBJECT_NEGATIVE_INTEGER) {
@@ -274,11 +274,11 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_unpack_string(void *ptr, in
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
   }
-  *newoffset = off;
-  if (deserializer->msg.data.type == MSGPACK_OBJECT_RAW) {
-    size_t sz = deserializer->msg.data.via.raw.size;
+  *newoffset = (int)off;
+  if (deserializer->msg.data.type == MSGPACK_OBJECT_STR) {
+    size_t sz = deserializer->msg.data.via.str.size;
     char *res = ModelicaAllocateString(sz);
-    memcpy(res, deserializer->msg.data.via.raw.ptr, sz);
+    memcpy(res, deserializer->msg.data.via.str.ptr, sz);
     return res;
   } else {
     ModelicaError("Object is not of integer type\n");
@@ -299,10 +299,10 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_next_to_stream(void *ptr1, v
   if (msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off)) {
     msgpack_object root = deserializer->msg.data;
     msgpack_object_print(st->fout,root);
-    *newoffset = off;
+    *newoffset = (int)off;
     return 1;
   } else {
-    *newoffset = off;
+    *newoffset = (int)off;
     return 0;
   }
 }
