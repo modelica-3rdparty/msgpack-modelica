@@ -60,6 +60,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 
+#if defined(_WIN32)
+#include <Windows.h>
+#include <io.h>
+#endif
+
 #if !defined(MSGPACK_MODELICA_STATIC)
 #define MSGPACK_MODELICA_STATIC static
 #endif
@@ -83,7 +88,12 @@ typedef struct {
   FILE *fout;
   int isStringBuffer;
   char *str;
+#if HAVE_OPEN_MEMSTREAM
   size_t size;
+#elif defined(_WIN32)
+  HANDLE hMapFile;
+  intptr_t hOSF;
+#endif
 } s_stream;
 
 MSGPACK_MODELICA_STATIC_INLINE void* msgpack_modelica_sbuffer_new()
@@ -311,11 +321,29 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_stream(const char *filename)
 {
   s_stream *st = (s_stream *) malloc(sizeof(s_stream));
   st->str = 0;
-  st->size = 0;
   st->isStringBuffer = 0 == *filename;
   if (st->isStringBuffer) {
 #if HAVE_OPEN_MEMSTREAM
+    st->size = 0;
     st->fout = open_memstream(&st->str,&st->size);
+#elif defined(_WIN32)
+    st->fout = tmpfile();
+    st->hOSF = _get_osfhandle(_fileno(st->fout));
+    st->hMapFile = CreateFileMappingA((HANDLE)st->hOSF, NULL, PAGE_READWRITE|SEC_RESERVE, 0, 16384, NULL);
+    if (st->hMapFile == NULL) {
+      /* _close(st->hOSF); */
+      fclose(st->fout);
+      free(st);
+      ModelicaFormatError("Could not access memory space! %s\n", strerror(GetLastError()));
+    }
+    st->str = (char*)MapViewOfFile(st->hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    if (st->str == NULL) {
+      CloseHandle(st->hMapFile);
+      /* _close(st->hOSF); */
+      fclose(st->fout);
+      free(st);
+      ModelicaFormatError("Could not fill memory space! %s\n", strerror(GetLastError()));
+    }
 #else
     ModelicaError("String streams are not implemented for this platform\n");
 #endif
@@ -332,8 +360,17 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_stream(const char *filename)
 MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_free_stream(void *ptr)
 {
   s_stream *st = (s_stream *) ptr;
+#if HAVE_OPEN_MEMSTREAM
   fclose(st->fout);
   free(st->str);
+#elif defined(_WIN32)
+  if (st->isStringBuffer) {
+    UnmapViewOfFile(st->str);
+    CloseHandle(st->hMapFile);
+    /* _close(st->hOSF); */
+  }
+  fclose(st->fout);
+#endif;
   free(st);
 }
 
@@ -355,6 +392,23 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_stream_get(void *ptr)
   st->str = 0;
   st->size = 0;
   st->fout = open_memstream(&st->str,&st->size);
+  return res;
+#elif defined(_WIN32)
+  char *res;
+  fpos_t pos;
+  s_stream *st = (s_stream *) ptr;
+  if (!st->isStringBuffer) {
+    ModelicaError("Cannot get stream contents for file streams.\n");
+  }
+  fflush(st->fout);
+  fgetpos(st->fout, &pos);
+  rewind(st->fout);
+  res = ModelicaAllocateStringWithErrorReturn((size_t)pos);
+  if (!res) {
+    ModelicaError("Failed to allocate memory for stream\n");
+  }
+  memcpy(res, st->str, (size_t)pos);
+  res[pos] = '\0';
   return res;
 #else
   ModelicaError("String streams are not implemented for this platform\n");
