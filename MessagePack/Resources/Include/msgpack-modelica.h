@@ -370,7 +370,7 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_free_stream(void *ptr)
     /* _close(st->hOSF); */
   }
   fclose(st->fout);
-#endif;
+#endif
   free(st);
 }
 
