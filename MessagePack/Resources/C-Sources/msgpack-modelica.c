@@ -25,8 +25,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 /* We want to generate the symbols in a shared object or similar */
+#if defined(_MSC_VER) && !defined(_LIB)
+#define MSGPACK_MODELICA_STATIC  __declspec(dllexport)
+#define MSGPACK_MODELICA_STATIC_INLINE  __declspec(dllexport)
+#else
 #define MSGPACK_MODELICA_STATIC
 #define MSGPACK_MODELICA_STATIC_INLINE
+#endif
 #include "../Include/msgpack-modelica.h"
 
 /* That wasn't so hard, was it?

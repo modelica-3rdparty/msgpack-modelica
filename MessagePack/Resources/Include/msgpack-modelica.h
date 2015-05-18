@@ -60,6 +60,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #endif
 
+#if defined(_WIN32)
+#include <Windows.h>
+#include <io.h>
+#endif
+
 #if !defined(MSGPACK_MODELICA_STATIC)
 #define MSGPACK_MODELICA_STATIC static
 #endif
@@ -83,7 +88,12 @@ typedef struct {
   FILE *fout;
   int isStringBuffer;
   char *str;
+#if HAVE_OPEN_MEMSTREAM
   size_t size;
+#elif defined(_WIN32)
+  HANDLE hMapFile;
+  intptr_t hOSF;
+#endif
 } s_stream;
 
 MSGPACK_MODELICA_STATIC_INLINE void* msgpack_modelica_sbuffer_new()
@@ -144,10 +154,10 @@ MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_pack_double(void *packer, do
 MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_pack_string(void* packer, const char *str)
 {
   size_t len = strlen(str);
-  if (msgpack_pack_raw((msgpack_packer *)packer,len)) {
+  if (msgpack_pack_str((msgpack_packer *)packer,len)) {
     return 1;
   }
-  return msgpack_pack_raw_body((msgpack_packer *)packer,str,len);
+  return msgpack_pack_str_body((msgpack_packer *)packer,str,len);
 }
 
 MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_sbuffer_to_file(void *ptr, const char *file)
@@ -166,7 +176,7 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_sbuffer_to_file(void *ptr, 
 MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_sbuffer_position(void *ptr)
 {
   msgpack_sbuffer* buffer = (msgpack_sbuffer*) ptr;
-  return buffer->size;
+  return (int)buffer->size;
 }
 
 MSGPACK_MODELICA_STATIC void unpack_print(FILE *fout, const void *ptr, size_t size) {
@@ -185,7 +195,7 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_deserialiser(const char *file
 {
   s_deserializer *deserializer = (s_deserializer*) malloc(sizeof(s_deserializer));
   char *mapped;
-  /* The msgpack api uses raw data, and  mmap is nice if we want to use random access in the file */
+  /* The msgpack api uses raw data, and mmap is nice if we want to use random access in the file */
 #if HAVE_MMAP
   struct stat s;
   int fd;
@@ -244,7 +254,7 @@ MSGPACK_MODELICA_STATIC_INLINE int msgpack_modelica_unpack_next(void *ptr, int o
   s_deserializer *deserializer = (s_deserializer*) ptr;
   size_t off = offset;
   int res = msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off);
-  *newoffset = off;
+  *newoffset = (int)off;
   return res;
 }
 
@@ -256,7 +266,7 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_int(void *ptr, int offset, i
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
   }
-  *newoffset = off;
+  *newoffset = (int)off;
   if (deserializer->msg.data.type == MSGPACK_OBJECT_POSITIVE_INTEGER) {
     return (int)deserializer->msg.data.via.u64;
   } else if (deserializer->msg.data.type == MSGPACK_OBJECT_NEGATIVE_INTEGER) {
@@ -274,11 +284,11 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_unpack_string(void *ptr, in
   if (!*success) {
     ModelicaError("Failed to unpack object\n");
   }
-  *newoffset = off;
-  if (deserializer->msg.data.type == MSGPACK_OBJECT_RAW) {
-    size_t sz = deserializer->msg.data.via.raw.size;
+  *newoffset = (int)off;
+  if (deserializer->msg.data.type == MSGPACK_OBJECT_STR) {
+    size_t sz = deserializer->msg.data.via.str.size;
     char *res = ModelicaAllocateString(sz);
-    memcpy(res, deserializer->msg.data.via.raw.ptr, sz);
+    memcpy(res, deserializer->msg.data.via.str.ptr, sz);
     return res;
   } else {
     ModelicaError("Object is not of integer type\n");
@@ -299,10 +309,10 @@ MSGPACK_MODELICA_STATIC int msgpack_modelica_unpack_next_to_stream(void *ptr1, v
   if (msgpack_unpack_next(&deserializer->msg, deserializer->ptr, deserializer->size, &off)) {
     msgpack_object root = deserializer->msg.data;
     msgpack_object_print(st->fout,root);
-    *newoffset = off;
+    *newoffset = (int)off;
     return 1;
   } else {
-    *newoffset = off;
+    *newoffset = (int)off;
     return 0;
   }
 }
@@ -311,11 +321,29 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_stream(const char *filename)
 {
   s_stream *st = (s_stream *) malloc(sizeof(s_stream));
   st->str = 0;
-  st->size = 0;
   st->isStringBuffer = 0 == *filename;
   if (st->isStringBuffer) {
 #if HAVE_OPEN_MEMSTREAM
+    st->size = 0;
     st->fout = open_memstream(&st->str,&st->size);
+#elif defined(_WIN32)
+    st->fout = tmpfile();
+    st->hOSF = _get_osfhandle(_fileno(st->fout));
+    st->hMapFile = CreateFileMappingA((HANDLE)st->hOSF, NULL, PAGE_READWRITE|SEC_RESERVE, 0, 16384, NULL);
+    if (st->hMapFile == NULL) {
+      /* _close(st->hOSF); */
+      fclose(st->fout);
+      free(st);
+      ModelicaFormatError("Could not access memory space! %s\n", strerror(GetLastError()));
+    }
+    st->str = (char*)MapViewOfFile(st->hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    if (st->str == NULL) {
+      CloseHandle(st->hMapFile);
+      /* _close(st->hOSF); */
+      fclose(st->fout);
+      free(st);
+      ModelicaFormatError("Could not fill memory space! %s\n", strerror(GetLastError()));
+    }
 #else
     ModelicaError("String streams are not implemented for this platform\n");
 #endif
@@ -332,8 +360,17 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_stream(const char *filename)
 MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_free_stream(void *ptr)
 {
   s_stream *st = (s_stream *) ptr;
+#if HAVE_OPEN_MEMSTREAM
   fclose(st->fout);
   free(st->str);
+#elif defined(_WIN32)
+  if (st->isStringBuffer) {
+    UnmapViewOfFile(st->str);
+    CloseHandle(st->hMapFile);
+    /* _close(st->hOSF); */
+  }
+  fclose(st->fout);
+#endif;
   free(st);
 }
 
@@ -355,6 +392,23 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_stream_get(void *ptr)
   st->str = 0;
   st->size = 0;
   st->fout = open_memstream(&st->str,&st->size);
+  return res;
+#elif defined(_WIN32)
+  char *res;
+  fpos_t pos;
+  s_stream *st = (s_stream *) ptr;
+  if (!st->isStringBuffer) {
+    ModelicaError("Cannot get stream contents for file streams.\n");
+  }
+  fflush(st->fout);
+  fgetpos(st->fout, &pos);
+  rewind(st->fout);
+  res = ModelicaAllocateStringWithErrorReturn((size_t)pos);
+  if (!res) {
+    ModelicaError("Failed to allocate memory for stream\n");
+  }
+  memcpy(res, st->str, (size_t)pos);
+  res[pos] = '\0';
   return res;
 #else
   ModelicaError("String streams are not implemented for this platform\n");
