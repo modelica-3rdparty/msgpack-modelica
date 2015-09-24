@@ -9,11 +9,11 @@ package Utilities
       function constructor
         input String file = "" "Output file or \"\" for an in-memory string accessible using get()";
         output Stream ss;
-      external "C" ss=msgpack_modelica_new_stream(file) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+      external "C" ss=msgpack_modelica_new_stream(file) annotation(Include="#include <../../../Include/msgpack-modelica.h>", IncludeDirectory="modelica://MessagePack/Resources/C-Sources/msgpack-c/include", Library={"msgpackc"});
       end constructor;
       function destructor
         input Stream ss;
-      external "C" msgpack_modelica_free_stream(ss) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+      external "C" msgpack_modelica_free_stream(ss) annotation(Include="#include <../../../Include/msgpack-modelica.h>", IncludeDirectory="modelica://MessagePack/Resources/C-Sources/msgpack-c/include", Library={"msgpackc"});
       end destructor;
     end Stream;
 
@@ -21,14 +21,14 @@ package Utilities
       // Make this a part of the Stream class once the Modelica Spec allows it...
       input Stream ss;
       output String str;
-    external "C" str=msgpack_modelica_stream_get(ss) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+    external "C" str=msgpack_modelica_stream_get(ss) annotation(Include="#include <../../../Include/msgpack-modelica.h>", IncludeDirectory="modelica://MessagePack/Resources/C-Sources/msgpack-c/include", Library={"msgpackc"});
     end get;
 
     function append
       // Make this a part of the Stream class once the Modelica Spec allows it...
       input Stream ss;
       input String str;
-    external "C" msgpack_modelica_stream_append(ss,str) annotation(Include="#include <msgpack-modelica.h>",  Library={"msgpackc"});
+    external "C" msgpack_modelica_stream_append(ss,str) annotation(Include="#include <../../../Include/msgpack-modelica.h>", IncludeDirectory="modelica://MessagePack/Resources/C-Sources/msgpack-c/include", Library={"msgpackc"});
     end append;
 
   end Stream;
