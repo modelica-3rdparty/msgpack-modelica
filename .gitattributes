@@ -12,3 +12,4 @@
 .gitignore text eol=native
 *.md text eol=native
 LICENSE text eol=native
+/MessagePack/Resources/C-Sources/msgpack-c/** -text
