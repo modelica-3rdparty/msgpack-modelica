@@ -64,7 +64,7 @@ initial algorithm
   annotation(experiment(StopTime=1.0), Documentation(info="
 <html>
 <p>This model tests that it is possible to create (serialize) a file
-encoded in MessagePack format, and verifies that it is possible read
+encoded in MessagePack format, and verifies that it is possible to read
 back this data.</p>
 </html>
 ")
