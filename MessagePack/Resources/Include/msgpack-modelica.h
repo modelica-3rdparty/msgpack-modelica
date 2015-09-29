@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #endif
 
-#include <../C-Sources/msgpack-c/include/msgpack.h>
+#include "../C-Sources/msgpack-c/include/msgpack.h"
 #include <stdio.h>
 #include <errno.h>
 #include <ModelicaUtilities.h>

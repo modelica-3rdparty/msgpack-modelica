@@ -152,7 +152,7 @@
     <CustomBuildStep />
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -184,7 +184,7 @@ copy unpack_template.h src\msgpack\unpack_template.h</Command>
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -235,7 +235,7 @@ copy unpack_template.h src\msgpack\unpack_template.h</Command>
     </PreBuildEvent>
     <CustomBuildStep />
     <ClCompile>
-      <AdditionalIncludeDirectories>..;..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -250,7 +250,7 @@ copy unpack_template.h src\msgpack\unpack_template.h</Command>
     <PreBuildEvent />
     <CustomBuildStep />
     <ClCompile>
-      <AdditionalIncludeDirectories>..;..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\C-Sources\msgpack-c\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
