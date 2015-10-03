@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2014, Martin Sjölund
 All rights reserved.
 
@@ -26,6 +26,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __MSGPACK_MODELICA_H
 #define __MSGPACK_MODELICA_H
+
+#if !defined(ITI_COMP_SIM)
 
 /* You can specify -DHAVE_MMAP=0 or -DHAVE_MMAP=1 to enable/disable the mmap implementation
  * Else we auto-detect mmap using _POSIX_MAPPED_FILES in unistd.h
@@ -427,5 +429,7 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_stream_append(void *ptr, co
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* !defined(ITI_COMP_SIM) */
 
 #endif
