@@ -19,7 +19,7 @@ All rights reserved.</p>
 </html>"));
 end License;
 
-annotation(Documentation(info="<html>
+annotation(DocumentationClass=true, Documentation(info="<html>
 <p>This implementation uses <a href=\"https://github.com/msgpack/msgpack-c\">msgpack-c</a> together with external objects and external \"C\" functions (Modelica cannot represent binary objects, so everything has to be hidden inside external functions).</p>
 <p>You will need to install msgpack-c in order to use this Modelica package (msgpack.h and libmsgpack-c.*).</p>
 <p>The external C code of this package is inserted using Include annotations, so there should be no need to compile any libraries prior to using the package.</p>
