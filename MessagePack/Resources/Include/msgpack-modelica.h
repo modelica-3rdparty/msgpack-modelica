@@ -400,19 +400,22 @@ MSGPACK_MODELICA_STATIC const char* msgpack_modelica_stream_get(void *ptr)
   return res;
 #elif defined(_WIN32)
   char *res;
-  fpos_t pos;
+  long pos;
   s_stream *st = (s_stream *) ptr;
   if (!st->isStringBuffer) {
     ModelicaError("Cannot get stream contents for file streams.\n");
   }
   fflush(st->fout);
-  fgetpos(st->fout, &pos);
+  pos = ftell(st->fout);
+  if (pos == -1L) {
+    ModelicaError("Failed to determine file position for file stream\n");
+  }
   rewind(st->fout);
-  res = ModelicaAllocateStringWithErrorReturn((size_t)pos);
+  res = ModelicaAllocateStringWithErrorReturn((size_t) pos);
   if (!res) {
     ModelicaError("Failed to allocate memory for stream\n");
   }
-  memcpy(res, st->str, (size_t)pos);
+  memcpy(res, st->str, (size_t) pos);
   res[pos] = '\0';
   return res;
 #else
