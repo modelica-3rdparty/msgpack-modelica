@@ -10,10 +10,12 @@ INCLUDE_DIRECTORIES (
 LIST (APPEND check_PROGRAMS
     array_ref.cpp
     buffer.cpp
+    carray.cpp
     cases.cpp
     convert.cpp
     fixint.cpp
     fixint_c.cpp
+    inc_adaptor_define.cpp
     json.cpp
     limit.cpp
     msgpack_basic.cpp
@@ -28,10 +30,12 @@ LIST (APPEND check_PROGRAMS
     pack_unpack_c.cpp
     raw.cpp
     reference.cpp
+    size_equal_only.cpp
     streaming.cpp
     streaming_c.cpp
     user_class.cpp
     version.cpp
+    visitor.cpp
     zone.cpp
 )
 
@@ -48,16 +52,17 @@ IF (MSGPACK_CXX11)
     LIST (APPEND check_PROGRAMS
         iterator_cpp11.cpp
         msgpack_cpp11.cpp
+        reference_cpp11.cpp
+        reference_wrapper_cpp11.cpp
         shared_ptr_cpp11.cpp
         unique_ptr_cpp11.cpp
-        reference_cpp11.cpp
     )
 ENDIF ()
 
 IF (MSGPACK_ENABLE_SHARED)
-    SET (MSGPACK_TEST_LIB msgpack)
+    SET (MSGPACK_TEST_LIB msgpackc)
 ELSE ()
-    SET (MSGPACK_TEST_LIB msgpack-static)
+    SET (MSGPACK_TEST_LIB msgpackc-static)
 ENDIF ()
 
 FOREACH (source_file ${check_PROGRAMS})
@@ -74,8 +79,19 @@ FOREACH (source_file ${check_PROGRAMS})
     )
     ADD_TEST (${source_file_we} ${source_file_we})
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Werror -Wno-mismatched-tags -g -O3")
+        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Werror -g -O3 ")
     ENDIF ()
+    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
+    ENDIF ()
+
+    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        IF ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}) OR
+            (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL   ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}))
+        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
+        ENDIF ()
+    ENDIF ()
+
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         IF (CMAKE_CXX_FLAGS MATCHES "/W[0-4] /WX")
             STRING(REGEX REPLACE "/W[0-4]" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")

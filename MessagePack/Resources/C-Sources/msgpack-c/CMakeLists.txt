@@ -1,4 +1,10 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.8.6)
+
+IF ((CMAKE_VERSION VERSION_GREATER 3.1) OR
+    (CMAKE_VERSION VERSION_EQUAL 3.1))
+    CMAKE_POLICY(SET CMP0054 NEW)
+ENDIF ()
+
 PROJECT (msgpack)
 
 FILE (READ ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/version_master.h contents)
@@ -14,6 +20,8 @@ SET (prefix ${CMAKE_INSTALL_PREFIX})
 SET (exec_prefix "\${prefix}")
 SET (libdir "\${exec_prefix}/lib")
 SET (includedir "\${prefix}/include")
+SET (GNUCXX_STD_SUPPORT_VERSION "4.3")
+SET (GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION "4.4")
 
 OPTION (MSGPACK_CXX11 "Using c++11 compiler" OFF)
 OPTION (MSGPACK_32BIT "32bit compile" OFF)
@@ -43,7 +51,10 @@ IF (MSGPACK_CXX11)
    ENDIF ()
 ELSE ()
    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-      SET (CMAKE_CXX_FLAGS "-std=c++03 ${CMAKE_CXX_FLAGS}")
+      IF ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER ${GNUCXX_STD_SUPPORT_VERSION}) OR
+          (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL   ${GNUCXX_STD_SUPPORT_VERSION}))
+          SET (CMAKE_CXX_FLAGS "-std=c++03 ${CMAKE_CXX_FLAGS}")
+      ENDIF ()
    ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
       SET (CMAKE_CXX_FLAGS "-std=c++03 ${CMAKE_CXX_FLAGS}")
    ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -74,6 +85,17 @@ IF (MSGPACK_BOOST)
    INCLUDE_DIRECTORIES (
        ${MSGPACK_BOOST_DIR}
    )
+ENDIF ()
+
+IF (MSGPACK_CHAR_SIGN)
+   SET (CMAKE_C_FLAGS "-f${MSGPACK_CHAR_SIGN}-char ${CMAKE_C_FLAGS}")
+   SET (CMAKE_CXX_FLAGS "-f${MSGPACK_CHAR_SIGN}-char ${CMAKE_CXX_FLAGS}")
+ENDIF ()
+
+IF (MSGPACK_DEFAULT_API_VERSION)
+   SET (CMAKE_CXX_FLAGS "-DMSGPACK_DEFAULT_API_VERSION=${MSGPACK_DEFAULT_API_VERSION} ${CMAKE_CXX_FLAGS}")
+ELSE ()
+   SET (CMAKE_CXX_FLAGS "-DMSGPACK_DEFAULT_API_VERSION=2 ${CMAKE_CXX_FLAGS}")
 ENDIF ()
 
 FILE (GLOB_RECURSE PREDEF_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/predef/include/boost ${CMAKE_CURRENT_SOURCE_DIR}/external/boost/predef/include/boost/*.h)
@@ -119,118 +141,7 @@ int main(int argc, char * argv[])
 }
 " MSGPACK_ENABLE_GCC_CXX_ATOMIC)
 
-IF (MSGPACK_ENABLE_GCC_CXX_ATOMIC)
-    LIST (APPEND msgpack_SOURCES
-        src/gcc_atomic.cpp
-    )
-ENDIF ()
-
-
-LIST (APPEND msgpack_SOURCES
-    src/unpack.c
-    src/objectc.c
-    src/version.c
-    src/vrefbuffer.c
-    src/zone.c
-)
-
-LIST (APPEND msgpack_HEADERS
-    include/msgpack/pack_define.h
-    include/msgpack/pack_template.h
-    include/msgpack/unpack_define.h
-    include/msgpack/unpack_template.h
-    include/msgpack/util.h
-    include/msgpack/sysdep.h
-    include/msgpack/gcc_atomic.h
-    include/msgpack.h
-    include/msgpack/sbuffer.h
-    include/msgpack/version.h
-    include/msgpack/version_master.h
-    include/msgpack/vrefbuffer.h
-    include/msgpack/zbuffer.h
-    include/msgpack/fbuffer.h
-    include/msgpack/pack.h
-    include/msgpack/unpack.h
-    include/msgpack/object.h
-    include/msgpack/zone.h
-)
-
-FILE (GLOB_RECURSE PREDEF_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/predef/*.h)
-
-LIST (APPEND msgpack_HEADERS ${PREDEF_FILES})
-LIST (APPEND msgpack_HEADERS include/msgpack/predef.h)
-
-IF (MSGPACK_ENABLE_CXX)
-    LIST (APPEND msgpack_HEADERS
-        include/msgpack.hpp
-        include/msgpack/adaptor/adaptor_base.hpp
-        include/msgpack/adaptor/array_ref.hpp
-        include/msgpack/adaptor/bool.hpp
-        include/msgpack/adaptor/boost/fusion.hpp
-        include/msgpack/adaptor/boost/msgpack_variant.hpp
-        include/msgpack/adaptor/boost/optional.hpp
-        include/msgpack/adaptor/boost/string_ref.hpp
-        include/msgpack/adaptor/char_ptr.hpp
-        include/msgpack/adaptor/check_container_size.hpp
-        include/msgpack/adaptor/cpp11/array.hpp
-        include/msgpack/adaptor/cpp11/array_char.hpp
-        include/msgpack/adaptor/cpp11/array_unsigned_char.hpp
-        include/msgpack/adaptor/cpp11/forward_list.hpp
-        include/msgpack/adaptor/cpp11/shared_ptr.hpp
-        include/msgpack/adaptor/cpp11/tuple.hpp
-        include/msgpack/adaptor/cpp11/unique_ptr.hpp
-        include/msgpack/adaptor/cpp11/unordered_map.hpp
-        include/msgpack/adaptor/cpp11/unordered_set.hpp
-        include/msgpack/adaptor/define.hpp
-        include/msgpack/adaptor/deque.hpp
-        include/msgpack/adaptor/detail/cpp03_define_array.hpp
-        include/msgpack/adaptor/detail/cpp03_define_map.hpp
-        include/msgpack/adaptor/detail/cpp03_msgpack_tuple.hpp
-        include/msgpack/adaptor/detail/cpp11_define_array.hpp
-        include/msgpack/adaptor/detail/cpp11_define_map.hpp
-        include/msgpack/adaptor/detail/cpp11_msgpack_tuple.hpp
-        include/msgpack/adaptor/ext.hpp
-        include/msgpack/adaptor/fixint.hpp
-        include/msgpack/adaptor/float.hpp
-        include/msgpack/adaptor/int.hpp
-        include/msgpack/adaptor/list.hpp
-        include/msgpack/adaptor/map.hpp
-        include/msgpack/adaptor/msgpack_tuple.hpp
-        include/msgpack/adaptor/nil.hpp
-        include/msgpack/adaptor/pair.hpp
-        include/msgpack/adaptor/raw.hpp
-        include/msgpack/adaptor/v4raw.hpp
-        include/msgpack/adaptor/set.hpp
-        include/msgpack/adaptor/string.hpp
-        include/msgpack/adaptor/tr1/unordered_map.hpp
-        include/msgpack/adaptor/tr1/unordered_set.hpp
-        include/msgpack/adaptor/vector.hpp
-        include/msgpack/adaptor/vector_bool.hpp
-        include/msgpack/adaptor/vector_char.hpp
-        include/msgpack/adaptor/vector_unsigned_char.hpp
-        include/msgpack/cpp_config.hpp
-        include/msgpack/detail/cpp03_zone.hpp
-        include/msgpack/detail/cpp11_zone.hpp
-        include/msgpack/fbuffer.hpp
-        include/msgpack/iterator.hpp
-        include/msgpack/meta.hpp
-        include/msgpack/object.hpp
-        include/msgpack/object_fwd.hpp
-        include/msgpack/pack.hpp
-        include/msgpack/sbuffer.hpp
-        include/msgpack/type.hpp
-        include/msgpack/unpack.hpp
-        include/msgpack/version.hpp
-        include/msgpack/versioning.hpp
-        include/msgpack/vrefbuffer.hpp
-        include/msgpack/zbuffer.hpp
-        include/msgpack/zone.hpp
-    )
-    FILE (GLOB_RECURSE PREPROCESSOR_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include/msgpack/preprocessor/*.hpp)
-
-    LIST (APPEND msgpack_HEADERS ${PREPROCESSOR_FILES})
-    LIST (APPEND msgpack_HEADERS include/msgpack/preprocessor.hpp)
-ENDIF ()
+INCLUDE (Files.cmake)
 
 EXECUTE_PROCESS (
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/src/msgpack
@@ -249,21 +160,25 @@ INCLUDE_DIRECTORIES (
 )
 
 IF (MSGPACK_ENABLE_SHARED)
-    ADD_LIBRARY (msgpack SHARED
-        ${msgpack_SOURCES}
-        ${msgpack_HEADERS}
+    ADD_LIBRARY (msgpackc SHARED
+        ${msgpackc_SOURCES}
+        ${msgpackc_HEADERS}
     )
 ENDIF ()
 
-ADD_LIBRARY (msgpack-static STATIC
-    ${msgpack_SOURCES}
-    ${msgpack_HEADERS}
+ADD_LIBRARY (msgpackc-static STATIC
+    ${msgpackc_SOURCES}
+    ${msgpackc_HEADERS}
 )
 
-SET_TARGET_PROPERTIES (msgpack-static PROPERTIES OUTPUT_NAME "msgpack")
+SET_TARGET_PROPERTIES (msgpackc-static PROPERTIES OUTPUT_NAME "msgpackc")
 IF (MSGPACK_ENABLE_SHARED)
-    SET_TARGET_PROPERTIES (msgpack PROPERTIES IMPORT_SUFFIX "_import.lib")
-    SET_TARGET_PROPERTIES (msgpack PROPERTIES SOVERSION 3 VERSION 4.0.0)
+    IF (MSVC)
+        SET_TARGET_PROPERTIES (msgpackc PROPERTIES IMPORT_SUFFIX "_import.lib")
+    ELSEIF (MINGW)
+        SET_TARGET_PROPERTIES (msgpackc PROPERTIES IMPORT_SUFFIX ".dll.a")
+    ENDIF ()
+    SET_TARGET_PROPERTIES (msgpackc PROPERTIES SOVERSION 2 VERSION 2.0.0)
 ENDIF ()
 
 IF (MSGPACK_BUILD_TESTS)
@@ -277,10 +192,28 @@ ENDIF ()
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     IF (MSGPACK_ENABLE_SHARED)
-        SET_PROPERTY (TARGET msgpack APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Wno-mismatched-tags -Werror -g -O3 -DPIC")
+        SET_PROPERTY (TARGET msgpackc APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Werror -g -O3 -DPIC")
     ENDIF ()
-    SET_PROPERTY (TARGET msgpack-static APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Wno-mismatched-tags -Werror -g -O3" )
+    SET_PROPERTY (TARGET msgpackc-static APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Werror -g -O3" )
 ENDIF ()
+
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    IF (MSGPACK_ENABLE_SHARED)
+        SET_PROPERTY (TARGET msgpackc APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
+    ENDIF ()
+    SET_PROPERTY (TARGET msgpackc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
+ENDIF ()
+
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    IF ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}) OR
+        (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL   ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}))
+        IF (MSGPACK_ENABLE_SHARED)
+            SET_PROPERTY (TARGET msgpackc APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
+        ENDIF ()
+        SET_PROPERTY (TARGET msgpackc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
+    ENDIF ()
+ENDIF ()
+
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     IF (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         STRING(REGEX REPLACE "/W[0-4]" "/W3 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -290,8 +223,12 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 ENDIF ()
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC90" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC10")
-    SET_SOURCE_FILES_PROPERTIES(${msgpack_SOURCES} PROPERTIES LANGUAGE CXX)
+    SET_SOURCE_FILES_PROPERTIES(${msgpackc_SOURCES} PROPERTIES LANGUAGE CXX)
 ENDIF()
+
+IF (NOT DEFINED CMAKE_INSTALL_BINDIR)
+    SET(CMAKE_INSTALL_BINDIR bin)
+ENDIF ()
 
 IF (NOT DEFINED CMAKE_INSTALL_LIBDIR)
     SET(CMAKE_INSTALL_LIBDIR lib)
@@ -302,12 +239,14 @@ IF (MSGPACK_BUILD_EXAMPLES)
 ENDIF ()
 
 IF (MSGPACK_ENABLE_SHARED)
-    SET (MSGPACK_INSTALLTARGETS msgpack msgpack-static)
+    SET (MSGPACK_INSTALLTARGETS msgpackc msgpackc-static)
 ELSE()
-    SET (MSGPACK_INSTALLTARGETS msgpack-static)
+    SET (MSGPACK_INSTALLTARGETS msgpackc-static)
 ENDIF ()
 
-INSTALL (TARGETS ${MSGPACK_INSTALLTARGETS} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+INSTALL (TARGETS ${MSGPACK_INSTALLTARGETS} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                                           ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 INSTALL (DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
 IF (NOT MSVC)
     INSTALL (FILES ${CMAKE_CURRENT_BINARY_DIR}/msgpack.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
