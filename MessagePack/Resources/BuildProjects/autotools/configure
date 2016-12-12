@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd ../../C-Sources/msgpack-c/
-exec ./configure "$*" --includedir=/tmp/msgpackinc$$
