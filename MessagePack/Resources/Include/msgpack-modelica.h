@@ -98,6 +98,7 @@ typedef struct {
 #elif defined(_WIN32)
   HANDLE hMapFile;
   intptr_t hOSF;
+  char tmpFile[_MAX_PATH];
 #endif
 } s_stream;
 
@@ -333,11 +334,25 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_stream(const char *filename)
     st->fout = open_memstream(&st->str,&st->size);
 #elif defined(_WIN32)
     st->fout = tmpfile();
+    if (st->fout == NULL) {
+      char tmpPath[_MAX_PATH];
+      GetTempPathA(_MAX_DIR, tmpPath);
+      GetTempFileNameA(tmpPath, "tmp", 0, st->tmpFile);
+      st->fout = fopen(st->tmpFile, "wb+");
+    } else {
+      st->tmpFile[0] = '\0';
+    }
+    if (st->fout == NULL) {
+      free(st);
+      ModelicaError("Could not create temporary file!\n");
+    }
     st->hOSF = _get_osfhandle(_fileno(st->fout));
     st->hMapFile = CreateFileMappingA((HANDLE)st->hOSF, NULL, PAGE_READWRITE|SEC_RESERVE, 0, 16384, NULL);
     if (st->hMapFile == NULL) {
       /* _close(st->hOSF); */
       fclose(st->fout);
+      if (st->tmpFile[0] != '\0')
+        remove(st->tmpFile);
       free(st);
       ModelicaFormatError("Could not access memory space! %s\n", strerror(GetLastError()));
     }
@@ -346,6 +361,8 @@ MSGPACK_MODELICA_STATIC void* msgpack_modelica_new_stream(const char *filename)
       CloseHandle(st->hMapFile);
       /* _close(st->hOSF); */
       fclose(st->fout);
+      if (st->tmpFile[0] != '\0')
+        remove(st->tmpFile);
       free(st);
       ModelicaFormatError("Could not fill memory space! %s\n", strerror(GetLastError()));
     }
@@ -375,6 +392,8 @@ MSGPACK_MODELICA_STATIC_INLINE void msgpack_modelica_free_stream(void *ptr)
     /* _close(st->hOSF); */
   }
   fclose(st->fout);
+  if (st->isStringBuffer && st->tmpFile[0] != '\0')
+    remove(st->tmpFile);
 #endif
   free(st);
 }
