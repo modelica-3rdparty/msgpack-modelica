@@ -79,7 +79,7 @@ TEST(unpack, int_ret_no_offset_ref)
 
     msgpack::object_handle oh = msgpack::unpack(sbuf.data(), sbuf.size(), referenced);
     EXPECT_EQ(1, oh.get().as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
 }
 
 TEST(unpack, int_ret_offset_ref)
@@ -91,7 +91,7 @@ TEST(unpack, int_ret_offset_ref)
 
     msgpack::object_handle oh = msgpack::unpack(sbuf.data(), sbuf.size(), off, referenced);
     EXPECT_EQ(1, oh.get().as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
     EXPECT_EQ(off, sbuf.size());
 }
 
@@ -128,7 +128,7 @@ TEST(unpack, int_no_offset_ref)
 
     msgpack::unpack(oh, sbuf.data(), sbuf.size(), referenced);
     EXPECT_EQ(1, oh.get().as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
 }
 
 TEST(unpack, int_offset_ref)
@@ -141,7 +141,7 @@ TEST(unpack, int_offset_ref)
 
     msgpack::unpack(oh, sbuf.data(), sbuf.size(), off, referenced);
     EXPECT_EQ(1, oh.get().as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
     EXPECT_EQ(off, sbuf.size());
 }
 
@@ -156,7 +156,14 @@ TEST(unpack, int_pointer_off_no_ref)
     std::size_t off = 0;
 
     // obsolete
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     msgpack::unpack(&oh, sbuf.data(), sbuf.size(), &off);
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic pop
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     EXPECT_EQ(1, oh.get().as<int>());
     EXPECT_EQ(off, sbuf.size());
 }
@@ -170,7 +177,14 @@ TEST(unpack, int_pointer_off_no_ref_explicit)
     std::size_t off = 0;
 
     // obsolete
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     msgpack::unpack(&oh, sbuf.data(), sbuf.size(), &off, MSGPACK_NULLPTR);
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic pop
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     EXPECT_EQ(1, oh.get().as<int>());
     EXPECT_EQ(off, sbuf.size());
 }
@@ -183,9 +197,16 @@ TEST(unpack, int_pointer_no_off_ref)
     bool referenced;
 
     // obsolete
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     msgpack::unpack(&oh, sbuf.data(), sbuf.size(), MSGPACK_NULLPTR, &referenced);
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic pop
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     EXPECT_EQ(1, oh.get().as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
 }
 
 TEST(unpack, int_pointer_off_ref)
@@ -197,10 +218,17 @@ TEST(unpack, int_pointer_off_ref)
     std::size_t off = 0;
 
     // obsolete
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     msgpack::unpack(&oh, sbuf.data(), sbuf.size(), &off, &referenced);
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic pop
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     EXPECT_EQ(1, oh.get().as<int>());
     EXPECT_EQ(off, sbuf.size());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
 }
 
 
@@ -211,7 +239,14 @@ TEST(unpack, int_default_null_pointer)
     msgpack::object_handle oh;
 
     // obsolete
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     msgpack::unpack(&oh, sbuf.data(), sbuf.size());
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
+#pragma GCC diagnostic pop
+#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
     EXPECT_EQ(1, oh.get().as<int>());
 }
 
@@ -249,7 +284,7 @@ TEST(unpack, int_zone_no_offset_ref)
     msgpack::zone z;
     msgpack::object obj = msgpack::unpack(z, sbuf.data(), sbuf.size(), referenced);
     EXPECT_EQ(1, obj.as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
 }
 
 TEST(unpack, int_zone_offset_ref)
@@ -262,7 +297,7 @@ TEST(unpack, int_zone_offset_ref)
     msgpack::zone z;
     msgpack::object obj = msgpack::unpack(z, sbuf.data(), sbuf.size(), off, referenced);
     EXPECT_EQ(1, obj.as<int>());
-    EXPECT_EQ(false, referenced);
+    EXPECT_FALSE(referenced);
     EXPECT_EQ(off, sbuf.size());
 }
 
@@ -335,7 +370,11 @@ TEST(unpack, insufficient_bytes_ref)
     }
     catch (msgpack::insufficient_bytes const&) {
         EXPECT_TRUE(true);
+#if MSGPACK_DEFAULT_API_VERSION < 3
         EXPECT_EQ(off, 0u);
+#else  // MSGPACK_DEFAULT_API_VERSION < 3
+        EXPECT_EQ(1u, off);
+#endif // MSGPACK_DEFAULT_API_VERSION < 3
     }
 }
 
@@ -352,7 +391,11 @@ TEST(unpack, insufficient_bytes_object_handle)
     }
     catch (msgpack::insufficient_bytes const&) {
         EXPECT_TRUE(true);
+#if MSGPACK_DEFAULT_API_VERSION < 3
         EXPECT_EQ(off, 0u);
+#else  // MSGPACK_DEFAULT_API_VERSION < 3
+        EXPECT_EQ(1u, off);
+#endif // MSGPACK_DEFAULT_API_VERSION < 3
     }
 }
 
@@ -370,7 +413,11 @@ TEST(unpack, insufficient_bytes_zone)
     }
     catch (msgpack::insufficient_bytes const&) {
         EXPECT_TRUE(true);
+#if MSGPACK_DEFAULT_API_VERSION < 3
         EXPECT_EQ(off, 0u);
+#else  // MSGPACK_DEFAULT_API_VERSION < 3
+        EXPECT_EQ(1u, off);
+#endif // MSGPACK_DEFAULT_API_VERSION < 3
     }
 }
 
@@ -465,4 +512,88 @@ TEST(unpack, int_off_larger_than_length)
     }
     EXPECT_TRUE(thrown);
     EXPECT_EQ(off, 2u);
+}
+
+TEST(unpack, empty_array_fix)
+{
+    std::string buf;
+    buf.push_back(static_cast<unsigned char>(0x90));
+    std::size_t off = 0;
+
+    msgpack::object_handle oh = msgpack::unpack(buf.data(), buf.size(), off);
+    EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
+    EXPECT_EQ(oh.get().via.array.size, 0u);
+    EXPECT_EQ(off, 1u);
+}
+
+TEST(unpack, empty_array_16)
+{
+    std::string buf;
+    buf.push_back(static_cast<unsigned char>(0xdc));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    std::size_t off = 0;
+
+    msgpack::object_handle oh = msgpack::unpack(buf.data(), buf.size(), off);
+    EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
+    EXPECT_EQ(oh.get().via.array.size, 0u);
+    EXPECT_EQ(off, 3u);
+}
+
+TEST(unpack, empty_array_32)
+{
+    std::string buf;
+    buf.push_back(static_cast<unsigned char>(0xdd));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    std::size_t off = 0;
+
+    msgpack::object_handle oh = msgpack::unpack(buf.data(), buf.size(), off);
+    EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
+    EXPECT_EQ(oh.get().via.array.size, 0u);
+    EXPECT_EQ(off, 5u);
+}
+
+TEST(unpack, empty_map_fix)
+{
+    std::string buf;
+    buf.push_back(static_cast<unsigned char>(0x80));
+    std::size_t off = 0;
+
+    msgpack::object_handle oh = msgpack::unpack(buf.data(), buf.size(), off);
+    EXPECT_EQ(oh.get().type, msgpack::type::MAP);
+    EXPECT_EQ(oh.get().via.map.size, 0u);
+    EXPECT_EQ(off, 1u);
+}
+
+TEST(unpack, empty_map_16)
+{
+    std::string buf;
+    buf.push_back(static_cast<unsigned char>(0xde));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    std::size_t off = 0;
+
+    msgpack::object_handle oh = msgpack::unpack(buf.data(), buf.size(), off);
+    EXPECT_EQ(oh.get().type, msgpack::type::MAP);
+    EXPECT_EQ(oh.get().via.map.size, 0u);
+    EXPECT_EQ(off, 3u);
+}
+
+TEST(unpack, empty_map_32)
+{
+    std::string buf;
+    buf.push_back(static_cast<unsigned char>(0xdf));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    buf.push_back(static_cast<unsigned char>(0x00));
+    std::size_t off = 0;
+
+    msgpack::object_handle oh = msgpack::unpack(buf.data(), buf.size(), off);
+    EXPECT_EQ(oh.get().type, msgpack::type::MAP);
+    EXPECT_EQ(oh.get().via.map.size, 0u);
+    EXPECT_EQ(off, 5u);
 }

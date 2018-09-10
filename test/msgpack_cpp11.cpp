@@ -612,6 +612,18 @@ TEST(MSGPACK_NO_DEF_CON_ASSOC_VECTOR, simple_buffer)
     EXPECT_EQ(val1, val2);
 }
 
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_ASSOC_VECTOR, simple_buffer)
+{
+    msgpack::type::assoc_vector<no_def_con, int> val1 { {1, 2}, {3, 4}, {5, 6}};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    msgpack::type::assoc_vector<no_def_con, int> val2
+        = oh.get().as<msgpack::type::assoc_vector<no_def_con, int>>();
+    EXPECT_EQ(val1, val2);
+}
+
 TEST(MSGPACK_NO_DEF_CON_MAP, simple_buffer)
 {
     std::map<no_def_con, no_def_con_composite> val1 { {1, 2}, {3, 4}, {5, 6}};
@@ -624,6 +636,18 @@ TEST(MSGPACK_NO_DEF_CON_MAP, simple_buffer)
     EXPECT_EQ(val1, val2);
 }
 
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_MAP, simple_buffer)
+{
+    std::map<no_def_con, int> val1 { {1, 2}, {3, 4}, {5, 6}};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::map<no_def_con, int> val2
+        = oh.get().as<std::map<no_def_con, int>>();
+    EXPECT_EQ(val1, val2);
+}
+
 TEST(MSGPACK_NO_DEF_CON_MULTIMAP, simple_buffer)
 {
     std::multimap<no_def_con, no_def_con_composite> val1 { {1, 2}, {3, 4}, {5, 6}};
@@ -633,6 +657,18 @@ TEST(MSGPACK_NO_DEF_CON_MULTIMAP, simple_buffer)
         msgpack::unpack(sbuf.data(), sbuf.size());
     std::multimap<no_def_con, no_def_con_composite> val2
         = oh.get().as<std::multimap<no_def_con, no_def_con_composite>>();
+    EXPECT_EQ(val1, val2);
+}
+
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_MULTIMAP, simple_buffer)
+{
+    std::multimap<no_def_con, int> val1 { {1, 2}, {3, 4}, {5, 6}};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::multimap<no_def_con, int> val2
+        = oh.get().as<std::multimap<no_def_con, int>>();
     EXPECT_EQ(val1, val2);
 }
 
@@ -659,6 +695,18 @@ TEST(MSGPACK_NO_DEF_CON_PAIR, simple_buffer)
     EXPECT_EQ(val1, val2);
 }
 
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_PAIR, simple_buffer)
+{
+    std::pair<no_def_con, int> val1 {1, 2};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::pair<no_def_con, int> val2
+        = oh.get().as<std::pair<no_def_con, int>>();
+    EXPECT_EQ(val1, val2);
+}
+
 
 
 // MSVC2015's std::tuple requires default constructor during 'as' process.
@@ -678,6 +726,18 @@ TEST(MSGPACK_NO_DEF_CON_TUPLE, simple_buffer)
     EXPECT_EQ(val1, val2);
 }
 
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_TUPLE, simple_buffer)
+{
+    std::tuple<no_def_con, no_def_con, int> val1 {1, 2, 3};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::tuple<no_def_con, no_def_con, int> val2
+        = oh.get().as<std::tuple<no_def_con, no_def_con, int>>();
+    EXPECT_EQ(val1, val2);
+}
+
 TEST(MSGPACK_NO_DEF_CON_MSGPACK_TUPLE, simple_buffer)
 {
     msgpack::type::tuple<no_def_con, no_def_con, no_def_con_composite> val1 {1, 2, 3};
@@ -687,6 +747,18 @@ TEST(MSGPACK_NO_DEF_CON_MSGPACK_TUPLE, simple_buffer)
         msgpack::unpack(sbuf.data(), sbuf.size());
     msgpack::type::tuple<no_def_con, no_def_con, no_def_con_composite> val2
         = oh.get().as<msgpack::type::tuple<no_def_con, no_def_con, no_def_con_composite>>();
+    EXPECT_EQ(val1, val2);
+}
+
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_MSGPACK_TUPLE, simple_buffer)
+{
+    msgpack::type::tuple<no_def_con, no_def_con, int> val1 {1, 2, 3};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    msgpack::type::tuple<no_def_con, no_def_con, int> val2
+        = oh.get().as<msgpack::type::tuple<no_def_con, no_def_con, int>>();
     EXPECT_EQ(val1, val2);
 }
 
@@ -737,6 +809,18 @@ TEST(MSGPACK_NO_DEF_CON_UNORDERED_MAP, simple_buffer)
     EXPECT_EQ(val1, val2);
 }
 
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_UNORDERED_MAP, simple_buffer)
+{
+    std::unordered_map<no_def_con, int> val1 { {1, 2}, {3, 4}, {5, 6}};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::unordered_map<no_def_con, int> val2
+        = oh.get().as<std::unordered_map<no_def_con, int>>();
+    EXPECT_EQ(val1, val2);
+}
+
 TEST(MSGPACK_NO_DEF_CON_UNORDERED_MULTIMAP, simple_buffer)
 {
     std::unordered_multimap<no_def_con, no_def_con_composite> val1 { {1, 2}, {3, 4}, {5, 6}};
@@ -749,6 +833,18 @@ TEST(MSGPACK_NO_DEF_CON_UNORDERED_MULTIMAP, simple_buffer)
     EXPECT_EQ(val1, val2);
 }
 
+TEST(MSGPACK_NO_DEF_CON_DEF_CON_UNORDERED_MULTIMAP, simple_buffer)
+{
+    std::unordered_multimap<no_def_con, int> val1 { {1, 2}, {3, 4}, {5, 6}};
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::unordered_multimap<no_def_con, int> val2
+        = oh.get().as<std::unordered_multimap<no_def_con, int>>();
+    EXPECT_EQ(val1, val2);
+}
+
 TEST(MSGPACK_NO_DEF_CON_ARRAY, simple_buffer)
 {
     std::array<no_def_con, 3> val1 { { 1, 2, 3 } };
@@ -758,6 +854,194 @@ TEST(MSGPACK_NO_DEF_CON_ARRAY, simple_buffer)
         msgpack::unpack(sbuf.data(), sbuf.size());
     std::array<no_def_con, 3> val2 = oh.get().as<std::array<no_def_con, 3>>();
     EXPECT_EQ(val1, val2);
+}
+
+TEST(MSGPACK_CHRONO, system_clock)
+{
+    std::chrono::system_clock::time_point val1;
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+TEST(MSGPACK_CHRONO, system_clock_32)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::seconds(0x12345678L));
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    char packed[] = {
+        static_cast<char>(0xd6),
+        static_cast<char>(-1),
+        static_cast<char>(0x12),
+        static_cast<char>(0x34),
+        static_cast<char>(0x56),
+        static_cast<char>(0x78)
+    };
+    EXPECT_EQ(memcmp(sbuf.data(), packed, sizeof(packed)), 0);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+TEST(MSGPACK_CHRONO, system_clock_32_max)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::seconds(0xffffffffL));
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    char packed[] = {
+        static_cast<char>(0xd6),
+        static_cast<char>(-1),
+        static_cast<char>(0xff),
+        static_cast<char>(0xff),
+        static_cast<char>(0xff),
+        static_cast<char>(0xff)
+    };
+    EXPECT_EQ(memcmp(sbuf.data(), packed, sizeof(packed)), 0);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+
+TEST(MSGPACK_CHRONO, system_clock_64)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::seconds(0x31234567L));
+    val1 +=
+        std::chrono::duration_cast<std::chrono::system_clock::duration>(
+            std::chrono::nanoseconds(0x312345678L)
+        );
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+TEST(MSGPACK_CHRONO, system_clock_64_max)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::seconds(0xffffffffL));
+
+    val1 +=
+        std::chrono::duration_cast<std::chrono::system_clock::duration>(
+            std::chrono::nanoseconds(0x3b9ac9ffL) // 999,999,999
+        );
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+    char packed_nano[] = {
+        static_cast<char>(0xd7),
+        static_cast<char>(-1),
+        static_cast<char>(0xee), // 999,999,999 << 2
+        static_cast<char>(0x6b),
+        static_cast<char>(0x27),
+        static_cast<char>(0xfc),
+        static_cast<char>(0xff), // 32 bit sec
+        static_cast<char>(0xff),
+        static_cast<char>(0xff),
+        static_cast<char>(0xff)
+    };
+    char packed_micro[] = {
+        static_cast<char>(0xd7),
+        static_cast<char>(-1),
+        static_cast<char>(0xee), // 999,999,000 << 2
+        static_cast<char>(0x6b),
+        static_cast<char>(0x18),
+        static_cast<char>(0x60),
+        static_cast<char>(0xff), // 32 bit sec
+        static_cast<char>(0xff),
+        static_cast<char>(0xff),
+        static_cast<char>(0xff)
+    };
+    if (std::chrono::system_clock::duration::period::ratio::den == 1000000000) {
+        EXPECT_EQ(memcmp(sbuf.data(), packed_nano, sizeof(packed_nano)), 0);
+    }
+    else if (std::chrono::system_clock::duration::period::ratio::den == 1000000) {
+        EXPECT_EQ(memcmp(sbuf.data(), packed_micro, sizeof(packed_micro)), 0);
+    }
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+TEST(MSGPACK_CHRONO, system_clock_impl_min)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::system_clock::time_point::min());
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+TEST(MSGPACK_CHRONO, system_clock_impl_max)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::system_clock::time_point::max());
+
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
+}
+
+TEST(MSGPACK_CHRONO, system_clock_impl_now)
+{
+    std::chrono::system_clock::time_point val1(std::chrono::system_clock::now());
+
+    msgpack::sbuffer sbuf;
+    msgpack::pack(sbuf, val1);
+
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    std::chrono::system_clock::time_point val2 = oh.get().as<std::chrono::system_clock::time_point>();
+    EXPECT_EQ(val1, val2);
+
+    std::chrono::system_clock::time_point val3;
+    oh.get().convert(val3);
+    EXPECT_EQ(val1, val3);
 }
 
 #endif // !defined(MSGPACK_USE_CPP03)

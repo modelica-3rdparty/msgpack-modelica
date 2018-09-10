@@ -126,4 +126,14 @@ template<class T> struct is_pointer : detail::is_pointer_helper<typename remove_
 
 #endif // MSGPACK_USE_CPP03
 
+#if __cplusplus >= 201402L
+#if defined(_MSC_VER)
+#define MSGPACK_DEPRECATED(msg) __declspec(deprecated(msg))
+#else  // _MSC_VER 1914+ with /Zc:__cplusplus, @see https://docs.microsoft.com/cpp/build/reference/zc-cplusplus
+#define MSGPACK_DEPRECATED(msg) [[deprecated(msg)]]
+#endif
+#else  // __cplusplus >= 201402L
+#define MSGPACK_DEPRECATED(msg)
+#endif // __cplusplus >= 201402L
+
 #endif // MSGPACK_V1_CPP_CONFIG_HPP
