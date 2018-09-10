@@ -20,7 +20,7 @@ You might need to run `sudo port selfupdate` before installing to update the pac
 You can also install via Homebrew.
 
 ```
-$ sudo brew install msgpack
+$ brew install msgpack
 ```
 
 ## FreeBSD with Ports Collection
@@ -96,7 +96,7 @@ int main(void) {
         /* deserializes it. */
         msgpack_unpacked msg;
         msgpack_unpacked_init(&msg);
-        bool success = msgpack_unpack_next(&msg, buffer->data, buffer->size, NULL);
+        msgpack_unpack_return ret = msgpack_unpack_next(&msg, buffer->data, buffer->size, NULL);
 
         /* prints the deserialized object. */
         msgpack_object obj = msg.data;
@@ -137,7 +137,7 @@ int main(void) {
            /* deserializes it. */
            msgpack_unpacked msg;
            msgpack_unpacked_init(&msg);
-           bool success = msgpack_unpack_next(&msg, buffer->data, buffer->size, NULL);
+           msgpack_unpack_return ret = msgpack_unpack_next(&msg, buffer->data, buffer->size, NULL);
 
            /* prints the deserialized object. */
            msgpack_object obj = msg.data;

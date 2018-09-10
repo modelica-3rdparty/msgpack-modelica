@@ -8,25 +8,28 @@ IF (MSGPACK_CXX11)
         non_def_con_class.cpp
     )
 
+    IF ("${MSGPACK_DEFAULT_API_VERSION}" GREATER "1")
+        LIST (APPEND exec_PROGRAMS
+            socket_stream_example.cpp
+        )
+    ENDIF ()
+
     FOREACH (source_file ${exec_PROGRAMS})
         GET_FILENAME_COMPONENT (source_file_we ${source_file} NAME_WE)
         ADD_EXECUTABLE (
             ${source_file_we}
             ${source_file}
         )
+        TARGET_INCLUDE_DIRECTORIES (${source_file_we}
+            PRIVATE
+                $<TARGET_PROPERTY:msgpackc,INTERFACE_INCLUDE_DIRECTORIES>
+        )
         IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Werror -g -O3 ")
+            SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wall -Wextra")
         ENDIF ()
 
         IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
-        ENDIF ()
-
-        IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            IF ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}) OR
-                (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL   ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}))
-            SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
-            ENDIF ()
         ENDIF ()
 
         IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
