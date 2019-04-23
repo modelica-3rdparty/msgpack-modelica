@@ -49,18 +49,19 @@ protected
 
   function createAndReadFile
     input String filename;
+    output String msg;
   protected
-    String res,msg;
+    String res;
   algorithm
     createFile(filename);
     res := readFile(filename);
     msg := "msgpack data from file " + filename + ": " + readFile(filename);
     assert(res=="{1.000000=>true}[65538, 2.000000]\nfalse\n\"Modelica\"\n\n", "Failed to read back "+msg);
-    terminate("Succeeded to write and read "+msg);
+    msg := "Succeeded to write and read "+msg;
   end createAndReadFile;
   Real dummy=1 "Need at least 1 variable to make OpenModelica happy";
 initial algorithm
-  createAndReadFile("msgpack.out");
+  terminate(createAndReadFile("msgpack.out"));
   annotation(experiment(StopTime=1.0), Documentation(info="
 <html>
 <p>This model tests that it is possible to create (serialize) a file
