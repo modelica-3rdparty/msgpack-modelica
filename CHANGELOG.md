@@ -1,3 +1,115 @@
+# 2018-09-09 version 3.1.1
+
+  * Add force endian set functionality (#736)
+  * Fix vrefbuffer memory management problem (#733)
+  * Fix msvc specific problem (#731, #732)
+  * Update boost from 1.61.0 to 1.68.0 (#730)
+  * Fix msgpack_timestamp type mismatch bug (#726)
+
+# 2018-08-10 version 3.1.0
+
+  * Improve documents (#687, #718)
+  * Add fuzzer support (#689)
+  * Fix msgpack::object union member access bug (#694)
+  * Improve cross platform configuration (#704)
+  * Fix out of range dereference bug of EXT (#705)
+  * Add timestamp support. std::chrono::system_clock::time_point is mapped to TIMESTAMP (#706)
+  * Add minimal timestamp support for C. The type `msgpack_timestamp` and the function `msgpack_object_to_timestamp()` are introduced (#707)
+  * Improve MSGPACK_DEFINE family name confliction probability (#710)
+  * Add no static-library build option (BUILD_SHARED_LIBS=ON) (#713, #717, #722)
+  * Add header only cmake target (#721)
+  * Add `std::byte` adaptor (#719)
+  * Remove some warnings (#720)
+
+# 2018-05-12 version 3.0.1
+
+  * Add fuzz directory to release tar ball (#686)
+  * Add include file checking for X-Code (#683)
+
+# 2018-05-09 version 3.0.0
+
+## << breaking changes >>
+
+  * Change offset parameter updating rule. If parse error happens, offset is updated to the error position. (#639, #666)
+
+## << other updates >>
+
+  * Improve cross platform configuration (#655, #677)
+  * Improve build system (#647)
+  * Improve user class adaptor (#645, #673)
+  * Improve msgpack::object visitation logic (#676)
+  * Remove some warnings (#641, 659)
+  * Add `->` and `*` operators to object_handle (#635)
+  * Improve CI environment (#631, #634, #643, #657, #662, #668)
+  * Improve documents (#630, #661)
+  * Refactoring (#670)
+  * Add OSS-Fuzz support (#672, #674, #675, #678)
+
+# 2017-08-04 version 2.1.5
+  * Improve cross platform configuration (#624)
+  * Add boost asio examples (including zlib) (#610)
+  * Remove some warnings (#611)
+  * Fix unpack visitor to treat float32/64 correctly (#613)
+  * Improve documents (#616)
+  * Fix alignment problem on some platform (#617, #518)
+  * Fix conflict std::tuple, std::pair, and boost::fusion::sequence problem (#619)
+
+# 2017-08-03 version 2.1.4 (Invalid)
+  * See https://github.com/msgpack/msgpack-c/issues/623
+
+# 2017-06-15 version 2.1.3
+  * Improve build system (#603)
+  * Add C++17 adaptors `std::optional` and `std::string_view`. (#607, #608)
+  * Improve cross platform configuration (#601)
+  * Remove some warnings (#599, #602, #605)
+
+# 2017-06-07 version 2.1.2
+
+* Improve documents (#565)
+  * Fix empty map parse bug (#568)
+  * Improve build system (#569, #570, #572, #579, #591, #592)
+  * Remove some warnings (#574, #578, #586, #588)
+  * Improve cross platform configuration (#577, #582)
+  * Add cmake package config support (#580)
+  * Fix streaming unpack bug (#585)
+
+# 2017-02-04 version 2.1.1
+
+  * Fix unpacker's buffer management bug (#561)
+  * Add boost string_view adaptor (#558)
+  * Remove some warnings (#557, #559)
+  * Improve coding style (#556)
+
+# 2017-01-10 version 2.1.0
+
+## << breaking changes >>
+
+  * Fix object internal data type is float if msgpack format is float32 (#531)
+
+## << recommended changes >>
+
+  * Add `FLOAT64` type. Please use it instead of `DOUBLE` (#531)
+  * Add `FLOAT32` type. Please use it instead of `FLOAT` (#531)
+
+## << other updates >>
+
+  * Add iterator based parse/unpack function(experimental) (#553)
+  * Add `[[deprecated]]` attribute for C++14 (#552)
+  * Fix `msgpack_unpack()` return code (#548)
+  * Fix integer overflow (#547, #549, #550)
+  * Add example codes (#542)
+  * Add MSGPACK_NVP. You can use not only variable name but also any strings (#535)
+  * Fix and Improve build system (#532, #545)
+  * Fix `gcc_atomic.hpp` include path (#529, #530)
+  * Improve CI environment (#526)
+  * Improve documents (#524)
+  * Add msgpack_unpacker_next_with_size() function (#515)
+  * Fix `as()` applying condition (#511)
+  * Fix fbuffer write (#504)
+  * Add gcc bug workaround (#499)
+  * Improve object print (#497, #500, #505, #533)
+  * Remove some warnings (#495, #506, #508, #513, #528, #538, #545)
+
 # 2016-06-25 version 2.0.0
 
 ## << breaking changes >>

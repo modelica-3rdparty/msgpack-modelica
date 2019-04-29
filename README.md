@@ -1,9 +1,9 @@
 `msgpack` for C/C++
 ===================
 
-Version 2.0.0 (under development)[![Build Status](https://travis-ci.org/msgpack/msgpack-c.svg?branch=master)](https://travis-ci.org/msgpack/msgpack-c) [![Build status](https://ci.appveyor.com/api/projects/status/8kstcgt79qj123mw/branch/master?svg=true)](https://ci.appveyor.com/project/redboltz/msgpack-c/branch/master)
+Version 3.1.1 [![Build Status](https://travis-ci.org/msgpack/msgpack-c.svg?branch=master)](https://travis-ci.org/msgpack/msgpack-c) [![Build status](https://ci.appveyor.com/api/projects/status/8kstcgt79qj123mw/branch/master?svg=true)](https://ci.appveyor.com/project/redboltz/msgpack-c/branch/master)
 
-It's like JSON but small and fast.
+It's like JSON but smaller and faster.
 
 Overview
 --------
@@ -11,7 +11,7 @@ Overview
 [MessagePack](http://msgpack.org/) is an efficient binary serialization
 format, which lets you exchange data among multiple languages like JSON,
 except that it's faster and smaller. Small integers are encoded into a
-single byte while typical short strings require only one extra byte in
+single byte and short strings require only one extra byte in
 addition to the strings themselves.
 
 Example
@@ -97,6 +97,10 @@ int main(void)
     msgpack::type::tuple<int, bool, std::string> dst;
     deserialized.convert(dst);
 
+    // or create the new instance
+    msgpack::type::tuple<int, bool, std::string> dst2 =
+        deserialized.as<msgpack::type::tuple<int, bool, std::string> >();
+
     return 0;
 }
 ```
@@ -108,7 +112,7 @@ Usage
 
 ### C++ Header Only Library
 
-When you use msgpack on C++03 and C++11, you can just add
+When you use msgpack on C++, you can just add
 msgpack-c/include to your include path:
 
     g++ -I msgpack-c/include your_source_file.cpp
@@ -120,36 +124,7 @@ also install the C and C++ versions of msgpack.
 
 #### Install from git repository
 
-##### Using autotools
-
-You will need:
-
- - `gcc >= 4.1.0` or `clang >= 3.3.0`
- - `autoconf >= 2.60`
- - `automake >= 1.10`
- - `libtool >= 2.2.4`
-
-The build steps below are for C and C++03. If compiling for C++11,
-add `-std=c++11` to the environmental variable `CXXFLAGS` with
-`export CXXFLAGS="$CXXFLAGS -std=c++11"` prior to following the
-directions below.
-
-```bash
-$ git clone https://github.com/msgpack/msgpack-c
-$ cd msgpack-c
-$ ./bootstrap
-$ ./configure
-$ make
-```
-
-You can install the resulting library like this:
-
-```bash
-$ sudo make install
-```
-##### Using cmake
-
-###### Using the Terminal (CLI)
+##### Using the Terminal (CLI)
 
 You will need:
 
@@ -164,15 +139,19 @@ C and C++03:
     $ make
     $ sudo make install
 
-If you want to setup C++11 version of msgpack instead,
+If you want to setup C++11 or C++17 version of msgpack instead,
 execute the following commands:
 
     $ git clone https://github.com/msgpack/msgpack-c.git
     $ cd msgpack-c
-    $ cmake -DMSGPACK_CXX11=ON .
+    $ cmake -DMSGPACK_CXX[11|17]=ON .
     $ sudo make install
 
-##### GUI on Windows
+`MSGPACK_CXX[11|17]` flags are not affected to installing files. Just switching test cases. All files are installed in every settings.
+
+When you use the C part of `msgpack-c`, you need to build and link the library. By default, both static/shared libraries are built. If you want to build only static library, set `BUILD_SHARED_LIBS=OFF` to cmake. If you want to build only shared library, set `BUILD_SHARED_L
+
+#### GUI on Windows
 
 Clone msgpack-c git repository.
 
@@ -199,7 +178,7 @@ the binaries:' text box.
 
 ### Documentation
 
-You can get addtional information on the
+You can get additional information including the tutorial on the
 [wiki](https://github.com/msgpack/msgpack-c/wiki).
 
 Contributing
