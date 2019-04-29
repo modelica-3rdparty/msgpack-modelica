@@ -1,7 +1,7 @@
 //
 // MessagePack for C++ zero-copy buffer implementation
 //
-// Copyright (C) 2008-2013 FURUHASHI Sadayuki and KONDO Takatoshi
+// Copyright (C) 2008-2017 FURUHASHI Sadayuki and KONDO Takatoshi
 //
 //    Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,7 +22,7 @@
 #endif
 #endif // defined(_MSC_VER)
 
-#ifndef _WIN32
+#if defined(unix) || defined(__unix) || defined(__APPLE__) || defined(__OpenBSD__)
 #include <sys/uio.h>
 #else
 struct iovec {
@@ -58,6 +58,10 @@ public:
         :m_ref_size(std::max(ref_size, detail::packer_max_buffer_size + 1)),
          m_chunk_size(chunk_size)
     {
+        if((sizeof(chunk) + chunk_size) < chunk_size) {
+            throw std::bad_alloc();
+        }
+
         size_t nfirst = (sizeof(iovec) < 72/2) ?
             72 / sizeof(iovec) : 8;
 
@@ -141,7 +145,11 @@ public:
             if(sz < len) {
                 sz = len;
             }
-
+             
+            if(sizeof(chunk) + sz < sz){
+                throw std::bad_alloc();
+            }
+            
             chunk* c = static_cast<chunk*>(::malloc(sizeof(chunk) + sz));
             if(!c) {
                 throw std::bad_alloc();
@@ -182,6 +190,10 @@ public:
     void migrate(vrefbuffer* to)
     {
         size_t sz = m_chunk_size;
+
+        if((sizeof(chunk) + sz) < sz){
+            throw std::bad_alloc();
+        }
 
         chunk* empty = static_cast<chunk*>(::malloc(sizeof(chunk) + sz));
         if(!empty) {

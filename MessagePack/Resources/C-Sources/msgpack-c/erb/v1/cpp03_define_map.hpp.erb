@@ -61,6 +61,7 @@ struct define_map<A0<%1.upto(i) {|j|%>, A<%=j%><%}%>> {
         if(o.type != msgpack::type::MAP) { throw msgpack::type_error(); }
         std::map<std::string, msgpack::object const*> kvmap;
         for (uint32_t i = 0; i < o.via.map.size; ++i) {
+            if (o.via.map.ptr[i].key.type != msgpack::type::STR) { throw msgpack::type_error(); }
             kvmap.insert(
                 std::map<std::string, msgpack::object const*>::value_type(
                     std::string(
@@ -82,7 +83,7 @@ struct define_map<A0<%1.upto(i) {|j|%>, A<%=j%><%}%>> {
     void msgpack_object(msgpack::object* o, msgpack::zone& z) const
     {
         o->type = msgpack::type::MAP;
-        o->via.map.ptr = static_cast<msgpack::object_kv*>(z.allocate_align(sizeof(msgpack::object_kv)*<%=(i+1)/2%>));
+        o->via.map.ptr = static_cast<msgpack::object_kv*>(z.allocate_align(sizeof(msgpack::object_kv)*<%=(i+1)/2%>, MSGPACK_ZONE_ALIGNOF(msgpack::object_kv)));
         o->via.map.size = <%=(i+1)/2%>;
         <%0.step(i,2) {|j|%>
         o->via.map.ptr[<%=j/2%>].key = msgpack::object(a<%=j%>, z);

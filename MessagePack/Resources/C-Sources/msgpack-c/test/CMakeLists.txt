@@ -45,6 +45,13 @@ IF (MSGPACK_BOOST)
         boost_variant.cpp
         boost_optional.cpp
         boost_string_ref.cpp
+        boost_string_view.cpp
+    )
+ENDIF ()
+
+IF (MSGPACK_USE_X3_PARSE)
+    LIST (APPEND check_PROGRAMS
+        msgpack_x3_parse.cpp
     )
 ENDIF ()
 
@@ -56,13 +63,16 @@ IF (MSGPACK_CXX11)
         reference_wrapper_cpp11.cpp
         shared_ptr_cpp11.cpp
         unique_ptr_cpp11.cpp
+
+        # fuzzers are cpp11 only
+        fuzz_unpack_pack_fuzzer_cpp11.cpp
     )
 ENDIF ()
 
-IF (MSGPACK_ENABLE_SHARED)
-    SET (MSGPACK_TEST_LIB msgpackc)
-ELSE ()
-    SET (MSGPACK_TEST_LIB msgpackc-static)
+IF (MSGPACK_CXX17)
+    LIST (APPEND check_PROGRAMS
+        msgpack_cpp17.cpp
+    )
 ENDIF ()
 
 FOREACH (source_file ${check_PROGRAMS})
@@ -72,24 +82,17 @@ FOREACH (source_file ${check_PROGRAMS})
         ${source_file}
     )
     TARGET_LINK_LIBRARIES (${source_file_we}
-        ${MSGPACK_TEST_LIB}
+        msgpackc
         ${GTEST_BOTH_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )
     ADD_TEST (${source_file_we} ${source_file_we})
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS "-Wall -Wextra -Werror -g -O3 ")
+        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wall -Wextra")
     ENDIF ()
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
-    ENDIF ()
-
-    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        IF ((CMAKE_CXX_COMPILER_VERSION VERSION_GREATER ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}) OR
-            (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL   ${GNUCXX_NO_MISMATCHED_TAGS_SUPPORT_VERSION}))
-        SET_PROPERTY (TARGET ${source_file_we} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-mismatched-tags")
-        ENDIF ()
     ENDIF ()
 
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -104,5 +107,9 @@ ENDFOREACH ()
 ADD_EXECUTABLE (
     multi_file
     multi_file1.cpp multi_file2.cpp
+)
+TARGET_INCLUDE_DIRECTORIES (multi_file
+    PRIVATE
+        $<TARGET_PROPERTY:msgpackc,INTERFACE_INCLUDE_DIRECTORIES>
 )
 ADD_TEST (multi_file multi_file)

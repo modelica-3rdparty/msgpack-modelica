@@ -24,6 +24,7 @@ LIST (APPEND msgpackc_HEADERS
     include/msgpack/predef/architecture/mips.h
     include/msgpack/predef/architecture/parisc.h
     include/msgpack/predef/architecture/ppc.h
+    include/msgpack/predef/architecture/ptx.h
     include/msgpack/predef/architecture/pyramid.h
     include/msgpack/predef/architecture/rs6k.h
     include/msgpack/predef/architecture/sparc.h
@@ -57,6 +58,7 @@ LIST (APPEND msgpackc_HEADERS
     include/msgpack/predef/compiler/metrowerks.h
     include/msgpack/predef/compiler/microtec.h
     include/msgpack/predef/compiler/mpw.h
+    include/msgpack/predef/compiler/nvcc.h
     include/msgpack/predef/compiler/palm.h
     include/msgpack/predef/compiler/pgi.h
     include/msgpack/predef/compiler/sgi_mipspro.h
@@ -83,12 +85,14 @@ LIST (APPEND msgpackc_HEADERS
     include/msgpack/predef/hardware/simd/x86_amd.h
     include/msgpack/predef/hardware/simd/x86_amd/versions.h
     include/msgpack/predef/language.h
+    include/msgpack/predef/language/cuda.h
     include/msgpack/predef/language/objc.h
     include/msgpack/predef/language/stdc.h
     include/msgpack/predef/language/stdcpp.h
     include/msgpack/predef/library.h
     include/msgpack/predef/library/c.h
     include/msgpack/predef/library/c/_prefix.h
+    include/msgpack/predef/library/c/cloudabi.h
     include/msgpack/predef/library/c/gnu.h
     include/msgpack/predef/library/c/uc.h
     include/msgpack/predef/library/c/vms.h
@@ -132,16 +136,25 @@ LIST (APPEND msgpackc_HEADERS
     include/msgpack/predef/os/windows.h
     include/msgpack/predef/other.h
     include/msgpack/predef/other/endian.h
+    include/msgpack/predef/other/workaround.h
     include/msgpack/predef/platform.h
+    include/msgpack/predef/platform/cloudabi.h
+    include/msgpack/predef/platform/ios.h
     include/msgpack/predef/platform/mingw.h
+    include/msgpack/predef/platform/mingw32.h
+    include/msgpack/predef/platform/mingw64.h
     include/msgpack/predef/platform/windows_desktop.h
     include/msgpack/predef/platform/windows_phone.h
     include/msgpack/predef/platform/windows_runtime.h
+    include/msgpack/predef/platform/windows_server.h
     include/msgpack/predef/platform/windows_store.h
+    include/msgpack/predef/platform/windows_system.h
+    include/msgpack/predef/platform/windows_uwp.h
     include/msgpack/predef/version.h
     include/msgpack/predef/version_number.h
     include/msgpack/sbuffer.h
     include/msgpack/sysdep.h
+    include/msgpack/timestamp.h
     include/msgpack/unpack.h
     include/msgpack/unpack_define.h
     include/msgpack/unpack_template.h
@@ -153,7 +166,7 @@ LIST (APPEND msgpackc_HEADERS
     include/msgpack/zone.h
 )
 IF (MSGPACK_ENABLE_CXX)
-    LIST (APPEND msgpack_HEADERS
+    LIST (APPEND msgpackc_HEADERS
         include/msgpack.hpp
         include/msgpack/adaptor/adaptor_base.hpp
         include/msgpack/adaptor/adaptor_base_decl.hpp
@@ -165,6 +178,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/adaptor/boost/msgpack_variant_decl.hpp
         include/msgpack/adaptor/boost/optional.hpp
         include/msgpack/adaptor/boost/string_ref.hpp
+        include/msgpack/adaptor/boost/string_view.hpp
         include/msgpack/adaptor/carray.hpp
         include/msgpack/adaptor/char_ptr.hpp
         include/msgpack/adaptor/check_container_size.hpp
@@ -172,6 +186,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/adaptor/cpp11/array.hpp
         include/msgpack/adaptor/cpp11/array_char.hpp
         include/msgpack/adaptor/cpp11/array_unsigned_char.hpp
+        include/msgpack/adaptor/cpp11/chrono.hpp
         include/msgpack/adaptor/cpp11/forward_list.hpp
         include/msgpack/adaptor/cpp11/reference_wrapper.hpp
         include/msgpack/adaptor/cpp11/shared_ptr.hpp
@@ -179,6 +194,11 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/adaptor/cpp11/unique_ptr.hpp
         include/msgpack/adaptor/cpp11/unordered_map.hpp
         include/msgpack/adaptor/cpp11/unordered_set.hpp
+        include/msgpack/adaptor/cpp17/byte.hpp
+        include/msgpack/adaptor/cpp17/carray_byte.hpp
+        include/msgpack/adaptor/cpp17/optional.hpp
+        include/msgpack/adaptor/cpp17/string_view.hpp
+        include/msgpack/adaptor/cpp17/vector_byte.hpp
         include/msgpack/adaptor/define.hpp
         include/msgpack/adaptor/define_decl.hpp
         include/msgpack/adaptor/deque.hpp
@@ -213,6 +233,8 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/adaptor/vector_unsigned_char.hpp
         include/msgpack/cpp_config.hpp
         include/msgpack/cpp_config_decl.hpp
+        include/msgpack/create_object_visitor.hpp
+        include/msgpack/create_object_visitor_decl.hpp
         include/msgpack/fbuffer.hpp
         include/msgpack/fbuffer_decl.hpp
         include/msgpack/gcc_atomic.hpp
@@ -220,12 +242,17 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/iterator_decl.hpp
         include/msgpack/meta.hpp
         include/msgpack/meta_decl.hpp
+        include/msgpack/null_visitor.hpp
+        include/msgpack/null_visitor_decl.hpp
         include/msgpack/object.hpp
         include/msgpack/object_decl.hpp
         include/msgpack/object_fwd.hpp
         include/msgpack/object_fwd_decl.hpp
         include/msgpack/pack.hpp
         include/msgpack/pack_decl.hpp
+        include/msgpack/parse.hpp
+        include/msgpack/parse_decl.hpp
+        include/msgpack/parse_return.hpp
         include/msgpack/preprocessor.hpp
         include/msgpack/preprocessor/arithmetic.hpp
         include/msgpack/preprocessor/arithmetic/add.hpp
@@ -429,6 +456,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/preprocessor/seq/detail/binary_transform.hpp
         include/msgpack/preprocessor/seq/detail/is_empty.hpp
         include/msgpack/preprocessor/seq/detail/split.hpp
+        include/msgpack/preprocessor/seq/detail/to_list_msvc.hpp
         include/msgpack/preprocessor/seq/elem.hpp
         include/msgpack/preprocessor/seq/enum.hpp
         include/msgpack/preprocessor/seq/filter.hpp
@@ -500,6 +528,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/type.hpp
         include/msgpack/unpack.hpp
         include/msgpack/unpack_decl.hpp
+        include/msgpack/unpack_exception.hpp
         include/msgpack/v1/adaptor/adaptor_base.hpp
         include/msgpack/v1/adaptor/adaptor_base_decl.hpp
         include/msgpack/v1/adaptor/array_ref.hpp
@@ -510,6 +539,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/adaptor/boost/msgpack_variant_decl.hpp
         include/msgpack/v1/adaptor/boost/optional.hpp
         include/msgpack/v1/adaptor/boost/string_ref.hpp
+        include/msgpack/v1/adaptor/boost/string_view.hpp
         include/msgpack/v1/adaptor/carray.hpp
         include/msgpack/v1/adaptor/char_ptr.hpp
         include/msgpack/v1/adaptor/check_container_size.hpp
@@ -517,6 +547,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/adaptor/cpp11/array.hpp
         include/msgpack/v1/adaptor/cpp11/array_char.hpp
         include/msgpack/v1/adaptor/cpp11/array_unsigned_char.hpp
+        include/msgpack/v1/adaptor/cpp11/chrono.hpp
         include/msgpack/v1/adaptor/cpp11/forward_list.hpp
         include/msgpack/v1/adaptor/cpp11/reference_wrapper.hpp
         include/msgpack/v1/adaptor/cpp11/shared_ptr.hpp
@@ -524,6 +555,11 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/adaptor/cpp11/unique_ptr.hpp
         include/msgpack/v1/adaptor/cpp11/unordered_map.hpp
         include/msgpack/v1/adaptor/cpp11/unordered_set.hpp
+        include/msgpack/v1/adaptor/cpp17/byte.hpp
+        include/msgpack/v1/adaptor/cpp17/carray_byte.hpp
+        include/msgpack/v1/adaptor/cpp17/optional.hpp
+        include/msgpack/v1/adaptor/cpp17/string_view.hpp
+        include/msgpack/v1/adaptor/cpp17/vector_byte.hpp
         include/msgpack/v1/adaptor/define.hpp
         include/msgpack/v1/adaptor/define_decl.hpp
         include/msgpack/v1/adaptor/deque.hpp
@@ -533,6 +569,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/adaptor/detail/cpp03_define_map_decl.hpp
         include/msgpack/v1/adaptor/detail/cpp03_msgpack_tuple.hpp
         include/msgpack/v1/adaptor/detail/cpp03_msgpack_tuple_decl.hpp
+        include/msgpack/v1/adaptor/detail/cpp11_convert_helper.hpp
         include/msgpack/v1/adaptor/detail/cpp11_define_array.hpp
         include/msgpack/v1/adaptor/detail/cpp11_define_array_decl.hpp
         include/msgpack/v1/adaptor/detail/cpp11_define_map.hpp
@@ -586,11 +623,13 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/object_fwd_decl.hpp
         include/msgpack/v1/pack.hpp
         include/msgpack/v1/pack_decl.hpp
+        include/msgpack/v1/parse_return.hpp
         include/msgpack/v1/preprocessor.hpp
         include/msgpack/v1/sbuffer.hpp
         include/msgpack/v1/sbuffer_decl.hpp
         include/msgpack/v1/unpack.hpp
         include/msgpack/v1/unpack_decl.hpp
+        include/msgpack/v1/unpack_exception.hpp
         include/msgpack/v1/version.hpp
         include/msgpack/v1/versioning.hpp
         include/msgpack/v1/vrefbuffer.hpp
@@ -621,26 +660,86 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v2/adaptor/size_equal_only_decl.hpp
         include/msgpack/v2/adaptor/v4raw_decl.hpp
         include/msgpack/v2/cpp_config_decl.hpp
+        include/msgpack/v2/create_object_visitor.hpp
+        include/msgpack/v2/create_object_visitor_decl.hpp
         include/msgpack/v2/detail/cpp03_zone_decl.hpp
         include/msgpack/v2/detail/cpp11_zone_decl.hpp
         include/msgpack/v2/fbuffer_decl.hpp
         include/msgpack/v2/iterator_decl.hpp
         include/msgpack/v2/meta_decl.hpp
+        include/msgpack/v2/null_visitor.hpp
+        include/msgpack/v2/null_visitor_decl.hpp
         include/msgpack/v2/object.hpp
         include/msgpack/v2/object_decl.hpp
         include/msgpack/v2/object_fwd.hpp
         include/msgpack/v2/object_fwd_decl.hpp
         include/msgpack/v2/pack_decl.hpp
+        include/msgpack/v2/parse.hpp
+        include/msgpack/v2/parse_decl.hpp
+        include/msgpack/v2/parse_return.hpp
         include/msgpack/v2/sbuffer_decl.hpp
         include/msgpack/v2/unpack.hpp
         include/msgpack/v2/unpack_decl.hpp
         include/msgpack/v2/vrefbuffer_decl.hpp
+        include/msgpack/v2/x3_parse.hpp
+        include/msgpack/v2/x3_parse_decl.hpp
+        include/msgpack/v2/x3_unpack.hpp
+        include/msgpack/v2/x3_unpack_decl.hpp
         include/msgpack/v2/zbuffer_decl.hpp
         include/msgpack/v2/zone_decl.hpp
+        include/msgpack/v3/adaptor/adaptor_base.hpp
+        include/msgpack/v3/adaptor/adaptor_base_decl.hpp
+        include/msgpack/v3/adaptor/array_ref_decl.hpp
+        include/msgpack/v3/adaptor/boost/msgpack_variant_decl.hpp
+        include/msgpack/v3/adaptor/check_container_size_decl.hpp
+        include/msgpack/v3/adaptor/define_decl.hpp
+        include/msgpack/v3/adaptor/detail/cpp03_define_array_decl.hpp
+        include/msgpack/v3/adaptor/detail/cpp03_define_map_decl.hpp
+        include/msgpack/v3/adaptor/detail/cpp03_msgpack_tuple_decl.hpp
+        include/msgpack/v3/adaptor/detail/cpp11_define_array_decl.hpp
+        include/msgpack/v3/adaptor/detail/cpp11_define_map_decl.hpp
+        include/msgpack/v3/adaptor/detail/cpp11_msgpack_tuple_decl.hpp
+        include/msgpack/v3/adaptor/ext_decl.hpp
+        include/msgpack/v3/adaptor/fixint_decl.hpp
+        include/msgpack/v3/adaptor/int_decl.hpp
+        include/msgpack/v3/adaptor/map_decl.hpp
+        include/msgpack/v3/adaptor/msgpack_tuple_decl.hpp
+        include/msgpack/v3/adaptor/nil_decl.hpp
+        include/msgpack/v3/adaptor/raw_decl.hpp
+        include/msgpack/v3/adaptor/size_equal_only_decl.hpp
+        include/msgpack/v3/adaptor/v4raw_decl.hpp
+        include/msgpack/v3/cpp_config_decl.hpp
+        include/msgpack/v3/create_object_visitor_decl.hpp
+        include/msgpack/v3/detail/cpp03_zone_decl.hpp
+        include/msgpack/v3/detail/cpp11_zone_decl.hpp
+        include/msgpack/v3/fbuffer_decl.hpp
+        include/msgpack/v3/iterator_decl.hpp
+        include/msgpack/v3/meta_decl.hpp
+        include/msgpack/v3/null_visitor_decl.hpp
+        include/msgpack/v3/object_decl.hpp
+        include/msgpack/v3/object_fwd.hpp
+        include/msgpack/v3/object_fwd_decl.hpp
+        include/msgpack/v3/pack_decl.hpp
+        include/msgpack/v3/parse.hpp
+        include/msgpack/v3/parse_decl.hpp
+        include/msgpack/v3/parse_return.hpp
+        include/msgpack/v3/sbuffer_decl.hpp
+        include/msgpack/v3/unpack.hpp
+        include/msgpack/v3/unpack_decl.hpp
+        include/msgpack/v3/vrefbuffer_decl.hpp
+        include/msgpack/v3/x3_parse_decl.hpp
+        include/msgpack/v3/x3_unpack.hpp
+        include/msgpack/v3/x3_unpack_decl.hpp
+        include/msgpack/v3/zbuffer_decl.hpp
+        include/msgpack/v3/zone_decl.hpp
         include/msgpack/version.hpp
         include/msgpack/versioning.hpp
         include/msgpack/vrefbuffer.hpp
         include/msgpack/vrefbuffer_decl.hpp
+        include/msgpack/x3_parse.hpp
+        include/msgpack/x3_parse_decl.hpp
+        include/msgpack/x3_unpack.hpp
+        include/msgpack/x3_unpack_decl.hpp
         include/msgpack/zbuffer.hpp
         include/msgpack/zbuffer_decl.hpp
         include/msgpack/zone.hpp

@@ -225,10 +225,7 @@ TEST(MSGPACKC, simple_buffer_float)
         msgpack_unpack_return ret =
             msgpack_unpack(sbuf.data, sbuf.size, NULL, &z, &obj);
         EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
-        EXPECT_EQ(MSGPACK_OBJECT_FLOAT, obj.type);
-#if defined(MSGPACK_USE_LEGACY_NAME_AS_FLOAT)
-        EXPECT_EQ(MSGPACK_OBJECT_DOUBLE, obj.type);
-#endif // MSGPACK_USE_LEGACY_NAME_AS_FLOAT
+        EXPECT_EQ(MSGPACK_OBJECT_FLOAT32, obj.type);
         if (isnan(val)) {
             EXPECT_TRUE(isnan(obj.via.f64));
 #if defined(MSGPACK_USE_LEGACY_NAME_AS_FLOAT)
@@ -290,6 +287,7 @@ TEST(MSGPACKC, simple_buffer_double)
         msgpack_unpack_return ret =
             msgpack_unpack(sbuf.data, sbuf.size, NULL, &z, &obj);
         EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
+        EXPECT_EQ(MSGPACK_OBJECT_FLOAT64, obj.type);
         EXPECT_EQ(MSGPACK_OBJECT_FLOAT, obj.type);
 #if defined(MSGPACK_USE_LEGACY_NAME_AS_FLOAT)
         EXPECT_EQ(MSGPACK_OBJECT_DOUBLE, obj.type);
@@ -370,7 +368,7 @@ TEST(MSGPACKC, simple_buffer_false)
         msgpack_unpack(sbuf.data, sbuf.size, NULL, &z, &obj);
     EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
     EXPECT_EQ(MSGPACK_OBJECT_BOOLEAN, obj.type);
-    EXPECT_EQ(false, obj.via.boolean);
+    EXPECT_FALSE(obj.via.boolean);
     msgpack_zone_destroy(&z);
     msgpack_sbuffer_destroy(&sbuf);
 }
@@ -525,7 +523,7 @@ TEST(MSGPACKC, simple_buffer_fixext_1byte_255)
 {
     const size_t size = 255;
     char buf[size];
-    for (size_t i = 0; i != size; ++i) buf[i] = i;
+    for (size_t i = 0; i != size; ++i) buf[i] = (char)i;
 
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
@@ -552,7 +550,7 @@ TEST(MSGPACKC, simple_buffer_fixext_2byte_256)
 {
     const size_t size = 256;
     char buf[size];
-    for (size_t i = 0; i != size; ++i) buf[i] = i;
+    for (size_t i = 0; i != size; ++i) buf[i] = (char)i;
 
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
@@ -579,7 +577,7 @@ TEST(MSGPACKC, simple_buffer_fixext_2byte_65535)
 {
     const size_t size = 65535;
     char buf[size];
-    for (size_t i = 0; i != size; ++i) buf[i] = i;
+    for (size_t i = 0; i != size; ++i) buf[i] = (char)i;
 
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
@@ -606,7 +604,7 @@ TEST(MSGPACKC, simple_buffer_fixext_4byte_65536)
 {
     const size_t size = 65536;
     char buf[size];
-    for (size_t i = 0; i != size; ++i) buf[i] = i;
+    for (size_t i = 0; i != size; ++i) buf[i] = (char)i;
 
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
@@ -625,6 +623,105 @@ TEST(MSGPACKC, simple_buffer_fixext_4byte_65536)
     EXPECT_EQ(size, obj.via.ext.size);
     EXPECT_EQ(81, obj.via.ext.type);
     EXPECT_EQ(0, memcmp(buf, obj.via.ext.ptr, sizeof(buf)));
+    msgpack_zone_destroy(&z);
+    msgpack_sbuffer_destroy(&sbuf);
+}
+
+TEST(MSGPACKC, simple_buffer_timestamp_32)
+{
+    msgpack_timestamp ts = {
+        0xffffffff,
+        0
+    };
+
+    msgpack_sbuffer sbuf;
+    msgpack_sbuffer_init(&sbuf);
+    msgpack_packer pk;
+    msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+    msgpack_pack_timestamp(&pk, &ts);
+    msgpack_zone z;
+    msgpack_zone_init(&z, 2048);
+    msgpack_object obj;
+    msgpack_unpack_return ret =
+        msgpack_unpack(sbuf.data, sbuf.size, NULL, &z, &obj);
+    EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
+    EXPECT_EQ(MSGPACK_OBJECT_EXT, obj.type);
+    EXPECT_EQ(4u, obj.via.ext.size);
+    EXPECT_EQ(-1, obj.via.ext.type);
+    msgpack_timestamp ts2;
+    bool r = msgpack_object_to_timestamp(&obj, &ts2);
+
+    EXPECT_TRUE(r);
+    EXPECT_EQ(ts.tv_sec, ts2.tv_sec);
+    EXPECT_EQ(ts.tv_nsec, ts2.tv_nsec);
+
+    msgpack_zone_destroy(&z);
+    msgpack_sbuffer_destroy(&sbuf);
+}
+
+TEST(MSGPACKC, simple_buffer_timestamp_64)
+{
+    msgpack_timestamp ts = {
+        0x3ffffffffL,
+        999999999
+    };
+
+    msgpack_sbuffer sbuf;
+    msgpack_sbuffer_init(&sbuf);
+    msgpack_packer pk;
+    msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+    msgpack_pack_timestamp(&pk, &ts);
+    msgpack_zone z;
+    msgpack_zone_init(&z, 2048);
+    msgpack_object obj;
+    msgpack_unpack_return ret =
+        msgpack_unpack(sbuf.data, sbuf.size, NULL, &z, &obj);
+    EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
+    EXPECT_EQ(MSGPACK_OBJECT_EXT, obj.type);
+    EXPECT_EQ(8u, obj.via.ext.size);
+    EXPECT_EQ(-1, obj.via.ext.type);
+    msgpack_timestamp ts2;
+    bool r = msgpack_object_to_timestamp(&obj, &ts2);
+
+    EXPECT_TRUE(r);
+    EXPECT_EQ(ts.tv_sec, ts2.tv_sec);
+    EXPECT_EQ(ts.tv_nsec, ts2.tv_nsec);
+
+    msgpack_zone_destroy(&z);
+    msgpack_sbuffer_destroy(&sbuf);
+}
+
+TEST(MSGPACKC, simple_buffer_timestamp_96)
+{
+    msgpack_timestamp ts = {
+        0x7fffffffffffffffLL,
+        999999999
+    };
+
+    msgpack_sbuffer sbuf;
+    msgpack_sbuffer_init(&sbuf);
+    msgpack_packer pk;
+    msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+    msgpack_pack_timestamp(&pk, &ts);
+    msgpack_zone z;
+    msgpack_zone_init(&z, 2048);
+    msgpack_object obj;
+    msgpack_unpack_return ret =
+        msgpack_unpack(sbuf.data, sbuf.size, NULL, &z, &obj);
+    EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
+    EXPECT_EQ(MSGPACK_OBJECT_EXT, obj.type);
+    EXPECT_EQ(12u, obj.via.ext.size);
+    EXPECT_EQ(-1, obj.via.ext.type);
+    msgpack_timestamp ts2;
+    bool r = msgpack_object_to_timestamp(&obj, &ts2);
+
+    EXPECT_TRUE(r);
+    EXPECT_EQ(ts.tv_sec, ts2.tv_sec);
+    EXPECT_EQ(ts.tv_nsec, ts2.tv_nsec);
+
     msgpack_zone_destroy(&z);
     msgpack_sbuffer_destroy(&sbuf);
 }
@@ -665,7 +762,7 @@ TEST(MSGPACKC, simple_buffer_array)
             break;
         case 2:
             EXPECT_EQ(MSGPACK_OBJECT_BOOLEAN, o.type);
-            EXPECT_EQ(false, o.via.boolean);
+            EXPECT_FALSE(o.via.boolean);
             break;
         case 3:
             EXPECT_EQ(MSGPACK_OBJECT_POSITIVE_INTEGER, o.type);
@@ -713,7 +810,7 @@ TEST(MSGPACKC, simple_buffer_map)
             EXPECT_EQ(MSGPACK_OBJECT_BOOLEAN, key.type);
             EXPECT_EQ(true, key.via.boolean);
             EXPECT_EQ(MSGPACK_OBJECT_BOOLEAN, val.type);
-            EXPECT_EQ(false, val.via.boolean);
+            EXPECT_FALSE(val.via.boolean);
             break;
         case 1:
             EXPECT_EQ(MSGPACK_OBJECT_POSITIVE_INTEGER, key.type);
@@ -778,7 +875,6 @@ TEST(MSGPACKC, simple_buffer_str_fix_l)
     EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
     EXPECT_EQ(MSGPACK_OBJECT_STR, obj.type);
     EXPECT_EQ(str_size, obj.via.str.size);
-    EXPECT_EQ(0, memcmp(str, obj.via.str.ptr, str_size));
 
     msgpack_zone_destroy(&z);
     msgpack_sbuffer_destroy(&sbuf);
@@ -977,7 +1073,6 @@ TEST(MSGPACKC, simple_buffer_v4raw_fix_l)
     EXPECT_EQ(MSGPACK_UNPACK_SUCCESS, ret);
     EXPECT_EQ(MSGPACK_OBJECT_STR, obj.type);
     EXPECT_EQ(str_size, obj.via.str.size);
-    EXPECT_EQ(0, memcmp(str, obj.via.str.ptr, str_size));
 
     msgpack_zone_destroy(&z);
     msgpack_sbuffer_destroy(&sbuf);
@@ -1256,4 +1351,15 @@ TEST(MSGPACKC, unpack_array_uint64)
     EXPECT_EQ(MSGPACK_OBJECT_POSITIVE_INTEGER, obj.via.array.ptr[0].type);
     EXPECT_EQ(0xFFF0000000000001LL, obj.via.array.ptr[0].via.u64);
     msgpack_zone_destroy(&z);
+}
+
+
+TEST(MSGPACKC, vref_buffer_overflow)
+{
+    msgpack_vrefbuffer vbuf;
+    msgpack_vrefbuffer to;
+    size_t ref_size = 0;
+    size_t chunk_size = std::numeric_limits<size_t>::max();
+    EXPECT_FALSE(msgpack_vrefbuffer_init(&vbuf, ref_size, chunk_size));
+    EXPECT_EQ(-1, msgpack_vrefbuffer_migrate(&vbuf, &to));
 }
