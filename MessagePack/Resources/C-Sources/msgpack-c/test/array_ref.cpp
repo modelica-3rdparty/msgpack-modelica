@@ -3,7 +3,16 @@
 #include <string>
 #include <sstream>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -20,8 +29,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_vector_char)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::vector<char> v2;
     msgpack::type::array_ref<std::vector<char> > ar2(v2);
@@ -42,8 +52,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_vector_char_const)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::vector<char> v2;
     msgpack::type::array_ref<std::vector<char> > ar2(v2);
@@ -62,8 +73,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_vector_unsigned_char)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::vector<unsigned char> v2;
     msgpack::type::array_ref<std::vector<unsigned char> > ar2(v2);
@@ -84,8 +96,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_vector_unsigned_char_const)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::vector<unsigned char> v2;
     msgpack::type::array_ref<std::vector<unsigned char> > ar2(v2);
@@ -179,8 +192,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_array_char)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::array<char, 3> v2;
     msgpack::type::array_ref<std::array<char, 3> > ar2(v2);
@@ -198,8 +212,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_array_char_const)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::array<char, 3> v2;
     msgpack::type::array_ref<std::array<char, 3> > ar2(v2);
@@ -215,8 +230,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_array_unsigned_char)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::array<unsigned char, 3> v2;
     msgpack::type::array_ref<std::array<unsigned char, 3> > ar2(v2);
@@ -234,8 +250,9 @@ TEST(MSGPACK_ARRAY_REF, pack_unpack_convert_array_unsigned_char_const)
     std::stringstream ss;
     msgpack::pack(ss, ar1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     EXPECT_EQ(oh.get().type, msgpack::type::ARRAY);
     std::array<unsigned char, 3> v2;
     msgpack::type::array_ref<std::array<unsigned char, 3> > ar2(v2);

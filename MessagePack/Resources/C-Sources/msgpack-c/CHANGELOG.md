@@ -1,3 +1,40 @@
+# 2020-06-05 version 3.3.0
+  * Add json example for C (#870)
+  * Add both header and body packing functions for C (#870)
+  * Set default ref_size and chunk_size to vrefbuffer (#865)
+  * Add examples (#861)
+  * Improve build system (#839, #842)
+  * Improve tests (#829)
+  * Improve documents (#828)
+  * Remove some warnings (#827, #851, #871)
+  * Improve CI environment (#824, #831, #833, #834, #846, #860, 874)
+
+# 2019-12-10 version 3.2.1
+  * Fix snprintf return value checking (#821)
+  * Remove some warnings (#819)
+  * Fix fbuffer result checking (#812)
+  * Fix temporary object handling (#807)
+  * Improve cmake support (#804)
+  * Fix invalid `int main` parameter (#800)
+  * Improve supporting platform (#797, #817)
+  * Fix ZLIB error handling (#795)
+  * Remove unused variable (#793)
+  * Improve integer overflow checking (#792)
+
+# 2019-05-27 version 3.2.0
+
+  * Fix invalid include (#783)
+  * Add timespec support (#781)
+  * Fix unchecked fnprintf on C (#780)
+  * Improve integer overflow checking on C (#776)
+  * Fix warnings on `-Wconversion` (#770, #777, #784)
+  * Fix invalid passed by value on aligned_zone_size_visitor (#764)
+  * Improve windows support (#757, #779)
+  * Fix msgpack::object size caluclation error (#754)
+  * Fix memory error on example code (#753)
+  * Fix redundant memory allocation on C (#747)
+  * Fix msgpack::type::tuple base class conversion (#743)
+
 # 2018-09-09 version 3.1.1
 
   * Add force endian set functionality (#736)

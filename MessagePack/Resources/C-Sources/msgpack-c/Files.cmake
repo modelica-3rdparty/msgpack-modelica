@@ -5,14 +5,11 @@ LIST (APPEND msgpackc_SOURCES
     src/vrefbuffer.c
     src/zone.c
 )
+
+# For both C and C++ libraries
 LIST (APPEND msgpackc_HEADERS
-    include/msgpack.h
     include/msgpack/fbuffer.h
-    include/msgpack/gcc_atomic.h
     include/msgpack/object.h
-    include/msgpack/pack.h
-    include/msgpack/pack_define.h
-    include/msgpack/pack_template.h
     include/msgpack/predef.h
     include/msgpack/predef/architecture.h
     include/msgpack/predef/architecture/alpha.h
@@ -152,20 +149,33 @@ LIST (APPEND msgpackc_HEADERS
     include/msgpack/predef/platform/windows_uwp.h
     include/msgpack/predef/version.h
     include/msgpack/predef/version_number.h
-    include/msgpack/sbuffer.h
     include/msgpack/sysdep.h
-    include/msgpack/timestamp.h
-    include/msgpack/unpack.h
     include/msgpack/unpack_define.h
-    include/msgpack/unpack_template.h
-    include/msgpack/util.h
-    include/msgpack/version.h
     include/msgpack/version_master.h
-    include/msgpack/vrefbuffer.h
     include/msgpack/zbuffer.h
     include/msgpack/zone.h
 )
+
+IF (NOT MSGPACK_CXX_ONLY)
+    # Only for C library
+    LIST (APPEND msgpackc_HEADERS
+        include/msgpack.h
+        include/msgpack/gcc_atomic.h
+        include/msgpack/pack.h
+        include/msgpack/pack_define.h
+        include/msgpack/pack_template.h
+        include/msgpack/sbuffer.h
+        include/msgpack/timestamp.h
+        include/msgpack/unpack.h
+        include/msgpack/unpack_template.h
+        include/msgpack/util.h
+        include/msgpack/version.h
+        include/msgpack/vrefbuffer.h
+    )
+ENDIF ()
+
 IF (MSGPACK_ENABLE_CXX)
+    # Only for C++ library
     LIST (APPEND msgpackc_HEADERS
         include/msgpack.hpp
         include/msgpack/adaptor/adaptor_base.hpp
@@ -190,6 +200,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/adaptor/cpp11/forward_list.hpp
         include/msgpack/adaptor/cpp11/reference_wrapper.hpp
         include/msgpack/adaptor/cpp11/shared_ptr.hpp
+        include/msgpack/adaptor/cpp11/timespec.hpp
         include/msgpack/adaptor/cpp11/tuple.hpp
         include/msgpack/adaptor/cpp11/unique_ptr.hpp
         include/msgpack/adaptor/cpp11/unordered_map.hpp
@@ -231,6 +242,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/adaptor/vector_bool.hpp
         include/msgpack/adaptor/vector_char.hpp
         include/msgpack/adaptor/vector_unsigned_char.hpp
+        include/msgpack/adaptor/wstring.hpp
         include/msgpack/cpp_config.hpp
         include/msgpack/cpp_config_decl.hpp
         include/msgpack/create_object_visitor.hpp
@@ -551,6 +563,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/adaptor/cpp11/forward_list.hpp
         include/msgpack/v1/adaptor/cpp11/reference_wrapper.hpp
         include/msgpack/v1/adaptor/cpp11/shared_ptr.hpp
+        include/msgpack/v1/adaptor/cpp11/timespec.hpp
         include/msgpack/v1/adaptor/cpp11/tuple.hpp
         include/msgpack/v1/adaptor/cpp11/unique_ptr.hpp
         include/msgpack/v1/adaptor/cpp11/unordered_map.hpp
@@ -605,6 +618,7 @@ IF (MSGPACK_ENABLE_CXX)
         include/msgpack/v1/adaptor/vector_bool.hpp
         include/msgpack/v1/adaptor/vector_char.hpp
         include/msgpack/v1/adaptor/vector_unsigned_char.hpp
+        include/msgpack/v1/adaptor/wstring.hpp
         include/msgpack/v1/cpp_config.hpp
         include/msgpack/v1/cpp_config_decl.hpp
         include/msgpack/v1/detail/cpp03_zone.hpp

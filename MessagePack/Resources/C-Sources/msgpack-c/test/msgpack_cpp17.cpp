@@ -1,6 +1,15 @@
 #include <msgpack.hpp>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -22,8 +31,9 @@ TEST(MSGPACK_CPP17, optional_pack_convert_nil)
     std::stringstream ss;
     std::optional<int> val1;
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     std::optional<int> val2 = oh.get().as<std::optional<int> >();
     EXPECT_TRUE(val1 == val2);
 }
@@ -33,8 +43,9 @@ TEST(MSGPACK_CPP17, optional_pack_convert_int)
     std::stringstream ss;
     std::optional<int> val1 = 1;
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     std::optional<int> val2 = oh.get().as<std::optional<int> >();
     EXPECT_TRUE(val1 == val2);
 }
@@ -50,8 +61,9 @@ TEST(MSGPACK_CPP17, optional_pack_convert_vector)
     v.push_back(3);
     val1 = v;
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     ovi_t  val2 = oh.get().as<ovi_t>();
     EXPECT_TRUE(val1 == val2);
 }
@@ -65,8 +77,9 @@ TEST(MSGPACK_CPP17, optional_pack_convert_vector_optional)
     val1[0] = 1;
     val1[2] = 3;
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     voi_t  val2 = oh.get().as<voi_t>();
     EXPECT_TRUE(val1 == val2);
 }
@@ -172,8 +185,9 @@ TEST(MSGPACK_CPP17, optional_pack_convert_no_def_con)
     std::stringstream ss;
     std::optional<no_def_con> val1 = no_def_con(1);
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     std::optional<no_def_con> val2 = oh.get().as<std::optional<no_def_con>>();
     EXPECT_TRUE(val1 == val2);
 }
@@ -190,8 +204,9 @@ TEST(MSGPACK_CPP17, string_view_pack_convert)
 
     msgpack::pack(ss, val1);
 
+    std::string const& str = ss.str();
     msgpack::object_handle oh;
-    msgpack::unpack(oh, ss.str().data(), ss.str().size());
+    msgpack::unpack(oh, str.data(), str.size());
     std::string_view val2 = oh.get().as<std::string_view>();
     EXPECT_TRUE(val1 == val2);
 }
@@ -225,7 +240,8 @@ TEST(MSGPACK_CPP17, byte_pack_convert)
     msgpack::pack(ss, val1);
 
     msgpack::object_handle oh;
-    msgpack::unpack(oh, ss.str().data(), ss.str().size());
+    std::string const& str = ss.str();
+    msgpack::unpack(oh, str.data(), str.size());
     std::byte val2 = oh.get().as<std::byte>();
     EXPECT_EQ(val1, val2);
 }
@@ -258,11 +274,13 @@ TEST(MSGPACK_CPP17, vector_byte_pack_convert)
 
     char packed[] = { char(0xc4), char(0x05), char(0x01), char(0x02), char(0x7f), char(0x80), char(0xff) };
     for (size_t i = 0; i != sizeof(packed); ++i) {
-        EXPECT_EQ(ss.str()[i], packed[i]);
+        std::string const& str = ss.str();
+        EXPECT_EQ(str[i], packed[i]);
     }
 
     msgpack::object_handle oh;
-    msgpack::unpack(oh, ss.str().data(), ss.str().size());
+    std::string const& str = ss.str();
+    msgpack::unpack(oh, str.data(), str.size());
     std::vector<std::byte> val2 = oh.get().as<std::vector<std::byte>>();
     EXPECT_EQ(val1, val2);
 }
@@ -303,11 +321,13 @@ TEST(MSGPACK_CPP17, carray_byte_pack_convert)
 
     char packed[] = { char(0xc4), char(0x05), char(0x01), char(0x02), char(0x7f), char(0x80), char(0xff) };
     for (size_t i = 0; i != sizeof(packed); ++i) {
-        EXPECT_EQ(ss.str()[i], packed[i]);
+        std::string const& str = ss.str();
+        EXPECT_EQ(str[i], packed[i]);
     }
 
     msgpack::object_handle oh;
-    msgpack::unpack(oh, ss.str().data(), ss.str().size());
+    std::string const& str = ss.str();
+    msgpack::unpack(oh, str.data(), str.size());
     std::byte val2[sizeof(val1)];
     oh.get().convert(val2);
     for (size_t i = 0; i != sizeof(val1); ++i) {

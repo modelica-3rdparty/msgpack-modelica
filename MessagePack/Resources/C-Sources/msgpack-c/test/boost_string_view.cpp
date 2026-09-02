@@ -1,7 +1,17 @@
 #include <msgpack.hpp>
 #include <sstream>
 #include <iterator>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -19,7 +29,8 @@ TEST(MSGPACK_BOOST, pack_convert_string_view)
     msgpack::pack(ss, val1);
 
     msgpack::object_handle oh;
-    msgpack::unpack(oh, ss.str().data(), ss.str().size());
+    std::string const& str = ss.str();
+    msgpack::unpack(oh, str.data(), str.size());
     boost::string_view val2 = oh.get().as<boost::string_view>();
     EXPECT_TRUE(val1 == val2);
 }

@@ -1,5 +1,16 @@
 #include <msgpack.hpp>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
+
 #include <cmath>
 
 #ifdef HAVE_CONFIG_H
@@ -202,7 +213,7 @@ TEST(object_with_zone, vector)
         vector<int> v1;
         v1.push_back(1);
         for (unsigned int i = 1; i < kElements; i++)
-            v1.push_back(i);
+            v1.push_back(static_cast<int>(i));
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<vector<int> >() == v1);
@@ -282,7 +293,7 @@ TEST(object_with_zone, list)
         list<int> v1;
         v1.push_back(1);
         for (unsigned int i = 1; i < kElements; i++)
-            v1.push_back(i);
+            v1.push_back(static_cast<int>(i));
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<list<int> >() == v1);
@@ -298,7 +309,7 @@ TEST(object_with_zone, deque)
         deque<int> v1;
         v1.push_back(1);
         for (unsigned int i = 1; i < kElements; i++)
-            v1.push_back(i);
+            v1.push_back(static_cast<int>(i));
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<deque<int> >() == v1);
@@ -331,6 +342,17 @@ TEST(object_without_zone, string)
 }
 
 #endif // MSGPACK_DEFAULT_API_VERSION == 1
+
+// wstring
+TEST(object_with_zone, wstring)
+{
+    wstring v = L"abc";
+    msgpack::zone z;
+    msgpack::object obj(v, z);
+    EXPECT_EQ(obj.as<wstring>(), v);
+    v[0] = 'd';
+    EXPECT_EQ(obj.as<wstring>()[0], L'a');
+}
 
 // char*
 TEST(object_with_zone, char_ptr)
@@ -401,7 +423,7 @@ TEST(object_with_zone, set)
     for (unsigned int k = 0; k < kLoop; k++) {
         set<int> v1;
         for (unsigned int i = 0; i < kElements; i++)
-            v1.insert(i);
+            v1.insert(static_cast<int>(i));
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<set<int> >() == v1);
@@ -751,14 +773,14 @@ TEST(object_with_zone, user_defined_non_virtual)
 
     msgpack::zone z;
     msgpack::object obj(b, z);
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#endif // defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
     bottom br = obj.as<bottom>();
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
 #pragma GCC diagnostic pop
-#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#endif // defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
     EXPECT_EQ(b.b, br.b);
     EXPECT_EQ(b.m1, br.m1);
     EXPECT_EQ(b.m2, br.m2);
@@ -796,14 +818,14 @@ TEST(object_with_zone, user_defined_virtual)
 
     msgpack::zone z;
     msgpack::object obj(b, z);
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#endif // defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
     v_bottom br = obj.as<v_bottom>();
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
 #pragma GCC diagnostic pop
-#endif // (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
+#endif // defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) && !defined(__clang__)
     EXPECT_EQ(b.b, br.b);
     EXPECT_EQ(b.m1, br.m1);
     EXPECT_EQ(b.m2, br.m2);
@@ -861,7 +883,7 @@ TEST(object_with_zone, array_char)
         test_t v1;
         v1[0] = 1;
         for (unsigned int i = 1; i < kElements; i++)
-            v1[i] = rand();
+            v1[i] = static_cast<char>(rand());
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<test_t>() == v1);
@@ -877,7 +899,7 @@ TEST(object_without_zone, array_char)
         test_t v1;
         v1[0] = 1;
         for (unsigned int i = 1; i < kElements; i++)
-            v1[i] = rand();
+            v1[i] = static_cast<char>(rand());
         msgpack::object obj(v1);
         EXPECT_TRUE(obj.as<test_t>() == v1);
         v1.front() = 42;
@@ -894,7 +916,7 @@ TEST(object_with_zone, array_unsigned_char)
         test_t v1;
         v1[0] = 1;
         for (unsigned int i = 1; i < kElements; i++)
-            v1[i] = rand();
+            v1[i] = static_cast<unsigned char>(rand());
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<test_t>() == v1);
@@ -911,7 +933,7 @@ TEST(object_without_zone, array_unsigned_char)
         test_t v1;
         v1[0] = 1;
         for (unsigned int i = 1; i < kElements; i++)
-            v1[i] = rand();
+            v1[i] = static_cast<unsigned char>(rand());
         msgpack::object obj(v1);
         EXPECT_TRUE(obj.as<test_t>() == v1);
         v1.front() = 42;
@@ -926,7 +948,7 @@ TEST(object_with_zone, forward_list)
     for (unsigned int k = 0; k < kLoop; k++) {
         forward_list<int> v1;
         for (unsigned int i = 0; i < kElements; i++)
-            v1.push_front(i);
+            v1.push_front(static_cast<int>(i));
         msgpack::zone z;
         msgpack::object obj(v1, z);
         EXPECT_TRUE(obj.as<forward_list<int> >() == v1);
@@ -1031,7 +1053,7 @@ TEST(object_with_zone, ext_empty)
 TEST(object_with_zone, ext)
 {
     msgpack::type::ext v(42, 10);
-    for (int i = 0; i < 10; ++i) v.data()[i] = i;
+    for (int i = 0; i < 10; ++i) v.data()[i] = static_cast<char>(i);
     msgpack::zone z;
     msgpack::object obj(v, z);
     EXPECT_TRUE(obj.as<msgpack::type::ext>() == v);

@@ -1,5 +1,15 @@
 #include <msgpack.hpp>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 template <typename T>
 void check_size(size_t size) {
@@ -25,7 +35,7 @@ TEST(fixint, size)
 
 template <typename T>
 void check_convert() {
-    T v1(-11);
+    T v1(typename T::value_type(-11));
     msgpack::sbuffer sbuf;
     msgpack::pack(sbuf, v1);
 

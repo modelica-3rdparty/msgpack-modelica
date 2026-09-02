@@ -4,7 +4,16 @@
 #include <limits>
 #include <cmath>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 // To avoid link error
 TEST(MSGPACK_X3_PARSE, dummy)
@@ -169,7 +178,7 @@ TEST(MSGPACK_X3_PARSE, uint64_2)
 
 TEST(MSGPACK_X3_PARSE, int8_1)
 {
-    int8_t v = 0b11011111;
+    int8_t v = static_cast<int8_t>(0b11011111);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -179,7 +188,7 @@ TEST(MSGPACK_X3_PARSE, int8_1)
 
 TEST(MSGPACK_X3_PARSE, int8_2)
 {
-    int8_t v = 0b10000000;
+    int8_t v = static_cast<int8_t>(0b10000000);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -189,7 +198,7 @@ TEST(MSGPACK_X3_PARSE, int8_2)
 
 TEST(MSGPACK_X3_PARSE, int16_1)
 {
-    int16_t v = 0xff00;
+    int16_t v = static_cast<int16_t>(0xff00);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -199,7 +208,7 @@ TEST(MSGPACK_X3_PARSE, int16_1)
 
 TEST(MSGPACK_X3_PARSE, int16_2)
 {
-    int16_t v = 0x8000;
+    int16_t v = static_cast<int16_t>(0x8000);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -209,7 +218,7 @@ TEST(MSGPACK_X3_PARSE, int16_2)
 
 TEST(MSGPACK_X3_PARSE, int32_1)
 {
-    int32_t v = 0xff000000L;
+    int32_t v = static_cast<int32_t>(0xff000000L);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -219,7 +228,7 @@ TEST(MSGPACK_X3_PARSE, int32_1)
 
 TEST(MSGPACK_X3_PARSE, int32_2)
 {
-    int32_t v = 0x80000000L;
+    int32_t v = static_cast<int32_t>(0x80000000L);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -229,7 +238,7 @@ TEST(MSGPACK_X3_PARSE, int32_2)
 
 TEST(MSGPACK_X3_PARSE, int64_1)
 {
-    int64_t v = 0xff00000000000000LL;
+    int64_t v = static_cast<int64_t>(0xff00000000000000LL);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -239,7 +248,7 @@ TEST(MSGPACK_X3_PARSE, int64_1)
 
 TEST(MSGPACK_X3_PARSE, int64_2)
 {
-    int64_t v = 0x8000000000000000LL;
+    int64_t v = static_cast<int64_t>(0x8000000000000000LL);
     std::stringstream ss;
     msgpack::pack(ss, v);
 
@@ -445,7 +454,7 @@ TEST(MSGPACK_X3_PARSE, string_2)
 {
     std::string v;
 
-    for (uint64_t i = 0; i != 0x1fU; ++i) v.push_back('0'+(i%10));
+    for (uint64_t i = 0; i != 0x1fU; ++i) v.push_back(static_cast<char>('0'+(i%10)));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -458,7 +467,7 @@ TEST(MSGPACK_X3_PARSE, string_3)
 {
     std::string v;
 
-    for (uint64_t i = 0; i != 0xffU; ++i) v.push_back('0'+(i%10));
+    for (uint64_t i = 0; i != 0xffU; ++i) v.push_back(static_cast<char>('0'+(i%10)));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -471,7 +480,7 @@ TEST(MSGPACK_X3_PARSE, string_4)
 {
     std::string v;
 
-    for (uint64_t i = 0; i != 0xffU+1U; ++i) v.push_back('0'+(i%10));
+    for (uint64_t i = 0; i != 0xffU+1U; ++i) v.push_back(static_cast<char>('0'+(i%10)));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -484,7 +493,7 @@ TEST(MSGPACK_X3_PARSE, string_5)
 {
     std::string v;
 
-    for (uint64_t i = 0; i != 0xffffU; ++i) v.push_back('0'+(i%10));
+    for (uint64_t i = 0; i != 0xffffU; ++i) v.push_back(static_cast<char>('0'+(i%10)));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -497,7 +506,7 @@ TEST(MSGPACK_X3_PARSE, string_6)
 {
     std::string v;
 
-    for (uint64_t i = 0; i != 0xffffUL + 1UL; ++i) v.push_back('0'+(i%10));
+    for (uint64_t i = 0; i != 0xffffUL + 1UL; ++i) v.push_back(static_cast<char>('0'+(i%10)));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -520,7 +529,7 @@ TEST(MSGPACK_X3_PARSE, bin_2)
 {
     std::vector<char> v;
 
-    for (uint64_t i = 0; i != 0x1fU; ++i) v.push_back(i%0xff);
+    for (uint64_t i = 0; i != 0x1fU; ++i) v.push_back(static_cast<char>(i%0xff));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -533,7 +542,7 @@ TEST(MSGPACK_X3_PARSE, bin_3)
 {
     std::vector<char> v;
 
-    for (uint64_t i = 0; i != 0xffU; ++i) v.push_back(i%0xff);
+    for (uint64_t i = 0; i != 0xffU; ++i) v.push_back(static_cast<char>(i%0xff));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -546,7 +555,7 @@ TEST(MSGPACK_X3_PARSE, bin_4)
 {
     std::vector<char> v;
 
-    for (uint64_t i = 0; i != 0xffU+1U; ++i) v.push_back(i%0xff);
+    for (uint64_t i = 0; i != 0xffU+1U; ++i) v.push_back(static_cast<char>(i%0xff));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -559,7 +568,7 @@ TEST(MSGPACK_X3_PARSE, bin_5)
 {
     std::vector<char> v;
 
-    for (uint64_t i = 0; i != 0xffffU; ++i) v.push_back(i%0xff);
+    for (uint64_t i = 0; i != 0xffffU; ++i) v.push_back(static_cast<char>(i%0xff));
 
     std::stringstream ss;
     msgpack::pack(ss, v);
@@ -572,7 +581,7 @@ TEST(MSGPACK_X3_PARSE, bin_6)
 {
     std::vector<char> v;
 
-    for (uint64_t i = 0; i != 0xffffUL + 1UL; ++i) v.push_back(i%0xff);
+    for (uint64_t i = 0; i != 0xffffUL + 1UL; ++i) v.push_back(static_cast<char>(i%0xff));
 
     std::stringstream ss;
     msgpack::pack(ss, v);

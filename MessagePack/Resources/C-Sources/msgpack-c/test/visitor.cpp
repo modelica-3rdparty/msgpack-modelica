@@ -1,5 +1,16 @@
 #include <msgpack.hpp>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
+
 #include <sstream>
 
 // To avoid link error
@@ -91,7 +102,8 @@ TEST(visitor, json_like)
     std::string json_like;
     json_like_visitor v(json_like);
     std::size_t off = 0;
-    bool ret = msgpack::parse(ss.str().data(), ss.str().size(), off, v);
+    std::string const& str = ss.str();
+    bool ret = msgpack::parse(str.data(), str.size(), off, v);
     EXPECT_TRUE(ret);
     EXPECT_EQ("{\"key\":[42,null,true]}", json_like);
 }

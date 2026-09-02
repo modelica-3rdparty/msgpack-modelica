@@ -3,7 +3,16 @@
 #include <iterator>
 #include <cmath>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -30,8 +39,9 @@ TEST(MSGPACK_BOOST, fusion_pack_unpack_convert)
     val1.f1 = 42;
     val1.f2 = 123.45;
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     mystruct val2 = oh.get().as<mystruct>();
     EXPECT_TRUE(val1.f1 == val2.f1);
     EXPECT_TRUE(fabs(val2.f2 - val1.f2) <= kEPS);
@@ -151,8 +161,9 @@ TEST(MSGPACK_BOOST, pack_convert_no_def_con)
     std::stringstream ss;
     mystruct_no_def_con val1(no_def_con1(1), no_def_con2(2), no_def_con1(3));
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     mystruct_no_def_con val2 = oh.get().as<mystruct_no_def_con>();
     EXPECT_TRUE(val1 == val2);
 }
@@ -202,8 +213,9 @@ TEST(MSGPACK_BOOST, pack_convert_no_def_con_def_con)
     std::stringstream ss;
     mystruct_no_def_con_def_con val1(no_def_con1(1), no_def_con2(2), 3);
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     mystruct_no_def_con_def_con val2 = oh.get().as<mystruct_no_def_con_def_con>();
     EXPECT_TRUE(val1 == val2);
 }
@@ -219,8 +231,9 @@ TEST(MSGPACK_BOOST, fusion_pack_unpack_convert_pair)
     std::stringstream ss;
     std::pair<bool, int> val1(false, 42);
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     std::pair<bool, int>  val2 = oh.get().as<std::pair<bool, int> >();
     EXPECT_TRUE(val1.first == val2.first);
     EXPECT_TRUE(val1.second == val2.second);
@@ -235,8 +248,9 @@ TEST(MSGPACK_BOOST, fusion_pack_unpack_convert_tuple)
     std::stringstream ss;
     std::tuple<bool, int> val1(false, 42);
     msgpack::pack(ss, val1);
+    std::string const& str = ss.str();
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(str.data(), str.size());
     std::tuple<bool, int> val2 = oh.get().as<std::tuple<bool, int> >();
     EXPECT_TRUE(val1 == val2);
 }
