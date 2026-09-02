@@ -3,7 +3,16 @@
 #include <string>
 #include <sstream>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -13,7 +22,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack)
 {
     std::string s = "ABC";
 
-    msgpack::type::raw_ref rr1(s.data(), s.size());
+    msgpack::type::raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -24,7 +33,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack)
     EXPECT_EQ(packed_str[4], 'C');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::raw_ref rr2 = oh.get().as<msgpack::type::raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -33,7 +42,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_8_l)
 {
     std::string s;
 
-    msgpack::type::raw_ref rr1(s.data(), s.size());
+    msgpack::type::raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -41,7 +50,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_8_l)
     EXPECT_EQ(packed_str[1], static_cast<char>(0x00u));
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::raw_ref rr2 = oh.get().as<msgpack::type::raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -50,7 +59,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_8_h)
 {
     std::string s(0xff, 'A');
 
-    msgpack::type::raw_ref rr1(s.data(), s.size());
+    msgpack::type::raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -59,7 +68,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_8_h)
     EXPECT_EQ(packed_str[2], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::raw_ref rr2 = oh.get().as<msgpack::type::raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -68,7 +77,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_16_l)
 {
     std::string s(0xff+1, 'A');
 
-    msgpack::type::raw_ref rr1(s.data(), s.size());
+    msgpack::type::raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -78,7 +87,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_16_l)
     EXPECT_EQ(packed_str[3], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::raw_ref rr2 = oh.get().as<msgpack::type::raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -87,7 +96,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_16_h)
 {
     std::string s(0xffff, 'A');
 
-    msgpack::type::raw_ref rr1(s.data(), s.size());
+    msgpack::type::raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -97,7 +106,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_16_h)
     EXPECT_EQ(packed_str[3], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::raw_ref rr2 = oh.get().as<msgpack::type::raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -106,7 +115,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_32_l)
 {
     std::string s(0xffff+1, 'A');
 
-    msgpack::type::raw_ref rr1(s.data(), s.size());
+    msgpack::type::raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -118,7 +127,7 @@ TEST(MSGPACK_RAW_REF, pack_unpack_32_l)
     EXPECT_EQ(packed_str[5], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::raw_ref rr2 = oh.get().as<msgpack::type::raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -127,7 +136,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack)
 {
     std::string s = "ABC";
 
-    msgpack::type::v4raw_ref rr1(s.data(), s.size());
+    msgpack::type::v4raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -137,7 +146,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack)
     EXPECT_EQ(packed_str[3], 'C');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::v4raw_ref rr2 = oh.get().as<msgpack::type::v4raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -146,14 +155,14 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_fix_l)
 {
     std::string s;
 
-    msgpack::type::v4raw_ref rr1(s.data(), s.size());
+    msgpack::type::v4raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
     EXPECT_EQ(packed_str[0], static_cast<char>(0xa0u));
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::v4raw_ref rr2 = oh.get().as<msgpack::type::v4raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -162,7 +171,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_fix_h)
 {
     std::string s(0x1f, 'A');
 
-    msgpack::type::v4raw_ref rr1(s.data(), s.size());
+    msgpack::type::v4raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -170,7 +179,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_fix_h)
     EXPECT_EQ(packed_str[1], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::v4raw_ref rr2 = oh.get().as<msgpack::type::v4raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -179,7 +188,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_16_l)
 {
     std::string s(0x1f+1, 'A');
 
-    msgpack::type::v4raw_ref rr1(s.data(), s.size());
+    msgpack::type::v4raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -189,7 +198,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_16_l)
     EXPECT_EQ(packed_str[3], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::v4raw_ref rr2 = oh.get().as<msgpack::type::v4raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -198,7 +207,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_16_h)
 {
     std::string s(0xffff, 'A');
 
-    msgpack::type::v4raw_ref rr1(s.data(), s.size());
+    msgpack::type::v4raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -208,7 +217,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_16_h)
     EXPECT_EQ(packed_str[3], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::v4raw_ref rr2 = oh.get().as<msgpack::type::v4raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }
@@ -217,7 +226,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_32_l)
 {
     std::string s(0xffff+1, 'A');
 
-    msgpack::type::v4raw_ref rr1(s.data(), s.size());
+    msgpack::type::v4raw_ref rr1(s.data(), static_cast<uint32_t>(s.size()));
     std::stringstream ss;
     msgpack::pack(ss, rr1);
     std::string packed_str = ss.str();
@@ -229,7 +238,7 @@ TEST(MSGPACK_V4RAW_REF, pack_unpack_32_l)
     EXPECT_EQ(packed_str[5], 'A');
 
     msgpack::object_handle oh =
-        msgpack::unpack(ss.str().data(), ss.str().size());
+        msgpack::unpack(packed_str.data(), packed_str.size());
     msgpack::type::v4raw_ref rr2 = oh.get().as<msgpack::type::v4raw_ref>();
     EXPECT_TRUE(rr1 == rr2);
 }

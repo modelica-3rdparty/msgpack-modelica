@@ -12,7 +12,16 @@
 
 #include "test_allocator.hpp"
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif //defined(__GNUC__)
+
 #include <gtest/gtest.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif //defined(__GNUC__)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -75,7 +84,7 @@ TEST(MSGPACK_STL, simple_buffer_vector_char)
     for (unsigned int k = 0; k < kLoop; k++) {
         type val1;
         for (unsigned int i = 0; i < kElements; i++)
-            val1.push_back(rand());
+            val1.push_back(static_cast<char>(rand()));
         msgpack::sbuffer sbuf;
         msgpack::pack(sbuf, val1);
         msgpack::object_handle oh =
@@ -107,7 +116,7 @@ TEST(MSGPACK_STL, simple_buffer_vector_unsigned_char)
     for (unsigned int k = 0; k < kLoop; k++) {
         type val1;
         for (unsigned int i = 0; i < kElements; i++)
-            val1.push_back(rand());
+            val1.push_back(static_cast<unsigned char>(rand()));
         msgpack::sbuffer sbuf;
         msgpack::pack(sbuf, val1);
         msgpack::object_handle oh =
@@ -140,7 +149,7 @@ TEST(MSGPACK_STL, simple_buffer_vector_uint8_t)
     for (unsigned int k = 0; k < kLoop; k++) {
         type val1;
         for (unsigned int i = 0; i < kElements; i++)
-            val1.push_back(rand());
+            val1.push_back(static_cast<uint8_t>(rand()));
         msgpack::sbuffer sbuf;
         msgpack::pack(sbuf, val1);
         msgpack::object_handle oh =
@@ -526,6 +535,18 @@ TEST(MSGPACK_TUPLE, simple_tuple_less_than_convert)
     EXPECT_EQ(oh.get().via.array.size, 3u);
     EXPECT_EQ(val1.get<0>(), val2.get<0>());
     EXPECT_EQ(val1.get<1>(), val2.get<1>());
+}
+
+TEST(MSGPACK_TUPLE, simple_tuple_nest)
+{
+    msgpack::sbuffer sbuf;
+    msgpack::type::tuple<msgpack::type::tuple<> > val1;
+    msgpack::pack(sbuf, val1);
+    msgpack::object_handle oh =
+        msgpack::unpack(sbuf.data(), sbuf.size());
+    msgpack::type::tuple<msgpack::type::tuple<> > val2;
+    oh.get().convert(val2);
+    EXPECT_EQ(oh.get().via.array.size, 1u);
 }
 
 // TR1
